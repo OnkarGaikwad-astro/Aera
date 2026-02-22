@@ -164,7 +164,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
           table: 'messages',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: 'id',
+            column: 'chat_id',
             value: chatId,
           ),
           callback: (payload) {
@@ -370,108 +370,113 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                 left: 0,
                 right: 0,
                 height: 50,
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        width: 300,
-                        height: 50,
-                        child: TextField(
-                          onChanged: (value) {
-                            msg_sent = false;
-                            temp_msg = type_msg.text;
-                            if (type_msg.text.trim().isEmpty) {
-                              msg_sent = true;
-                              setState(() {});
-                            }
-                            setState(() {});
-                          },
-                          onSubmitted: (value) async {
-                            HapticFeedback.selectionClick();
-                            msg_sent = false;
-                            setState(() {});
-                            final msg = type_msg.text;
-                            type_msg.text = "";
-                            // gemini(msg);
-                            await send_message(msg);
-                            temp_msg = "";
-                          },
-                          controller: type_msg,
-                          cursorColor: Colors.teal,
-                          decoration: InputDecoration(
-                            hint: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 20,
-                                bottom: 7,
-                              ),
-                              child: Text(
-                                "Send across the galaxy . . .",
-                                style: TextStyle(
-                                  fontFamily: "times new roman",
-                                  letterSpacing: 1.5,
-                                  fontSize: 13,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                  child: Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            width: 300,
+                            height: 50,
+                            child: TextField(
+                              onChanged: (value) {
+                                msg_sent = false;
+                                temp_msg = type_msg.text;
+                                if (type_msg.text.trim().isEmpty) {
+                                  msg_sent = true;
+                                  setState(() {});
+                                }
+                                setState(() {});
+                              },
+                              onSubmitted: (value) async {
+                                HapticFeedback.selectionClick();
+                                msg_sent = false;
+                                setState(() {});
+                                final msg = type_msg.text;
+                                type_msg.text = "";
+                                // gemini(msg);
+                                await send_message(msg);
+                                temp_msg = "";
+                              },
+                              controller: type_msg,
+                              cursorColor: Colors.teal,
+                              decoration: InputDecoration(
+                                hint: Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 20,
+                                    bottom: 7,
+                                  ),
+                                  child: Text(
+                                    "Send across the galaxy . . .",
+                                    style: TextStyle(
+                                      fontFamily: "times new roman",
+                                      letterSpacing: 1.5,
+                                      fontSize: 13,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            filled: true,
-                            fillColor: const Color.fromARGB(46, 158, 158, 158),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark
-                                    ? const Color.fromARGB(255, 255, 255, 255)
-                                    : Colors.black),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark ? Colors.white : Colors.black),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark
-                                    ? const Color.fromARGB(255, 121, 120, 120)
-                                    : Colors.black),
+                                filled: true,
+                                fillColor: const Color.fromARGB(46, 158, 158, 158),
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: (Isdark
+                                        ? const Color.fromARGB(255, 255, 255, 255)
+                                        : Colors.black),
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: (Isdark ? Colors.white : Colors.black),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  borderSide: BorderSide(
+                                    color: (Isdark
+                                        ? const Color.fromARGB(255, 121, 120, 120)
+                                        : Colors.black),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      SizedBox(width: 7),
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          color: Color.fromARGB(255, 59, 148, 181),
+                        SizedBox(width: 7),
+                        Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color: Color.fromARGB(255, 59, 148, 181),
+                          ),
+                          child: IconButton(
+                            onPressed: () async {
+                              HapticFeedback.selectionClick();
+                              msg_sent = false;
+                              setState(() {});
+                              final msg = type_msg.text;
+                              type_msg.text = "";
+                  
+                              if (msg != "") {
+                                // gemini(msg);
+                                await send_message(msg);
+                              }
+                  
+                              temp_msg = "";
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.send_rounded, size: 25),
+                          ),
                         ),
-                        child: IconButton(
-                          onPressed: () async {
-                            HapticFeedback.selectionClick();
-                            msg_sent = false;
-                            setState(() {});
-                            final msg = type_msg.text;
-                            type_msg.text = "";
-
-                            if (msg != "") {
-                              // gemini(msg);
-                              await send_message(msg);
-                            }
-
-                            temp_msg = "";
-                            setState(() {});
-                          },
-                          icon: Icon(Icons.send_rounded, size: 25),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -783,19 +788,15 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
   }
 
   
-final List<String> apiKeys = [
-  "AIzaSyCfmtOni0ZW849wcCoIBowT35iu1bKukIA",
-  "AIzaSyCEtVE7HJcBFTDktqt9l5VuZku5QdDNgqg",
-  "AIzaSyAkTYr7_s2h2FDbUpWvBmTs4qJ580bBlo4",
-];
-
 Future<void> gemini(String prompt) async {
+  chatApi.fetch_api();
   print("asking 🚀🚀");
-  String res = "ERROR";
-  for (String apiKey in apiKeys) {
+  String res = "Error";
+  for (String apiKey in api_keys.value) {
     final url = Uri.parse(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
     );
+
     try {
       final response = await http.post(
         url,
@@ -807,7 +808,7 @@ Future<void> gemini(String prompt) async {
                 {
                   "text":
                       prompt +
-                      " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info "
+                      " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info"
                 }
               ]
             }
@@ -815,22 +816,28 @@ Future<void> gemini(String prompt) async {
         }),
       );
 
+      print("Status: ${response.statusCode}");
+
       if (response.statusCode == 200) {
         res = jsonDecode(response.body)
             ["candidates"][0]["content"]["parts"][0]["text"];
         break;
       }
-
-      if (response.statusCode != 429 &&
-          response.statusCode != 401 &&
-          response.statusCode != 403) {
-        break; 
+      if (response.statusCode == 429 ||
+          response.statusCode == 401 ||
+          response.statusCode == 403) {
+        print("Key failed, trying next...");
+        continue;
+      } else {
+        print("Other error: ${response.statusCode}");
+        break;
       }
 
     } catch (e) {
+      print("Exception: $e");
+      continue;
     }
   }
-
   send_response(res);
   setState(() {});
 }

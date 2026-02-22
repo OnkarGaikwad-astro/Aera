@@ -13,6 +13,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
@@ -94,7 +95,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
   ///////   send message   ////
   Future<void> send_message(String msg) async {
     final email = await FirebaseAuth.instance.currentUser?.email;
-    await chatApi.addMessagegrp(email!, widget.ID, msg);
+    await chatApi.addMessagegrp(email!, widget.ID, msg,false);
     print("📖📖📖📖📖📖📖 ");
     if (msg != "") playClick();
     await all_chats_list();
@@ -155,7 +156,6 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     setState(() {});
   }
 
-
   /// init state  ////
   @override
   void initState() {
@@ -203,7 +203,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
           table: 'messages',
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
-            column: 'id',
+            column: 'chat_id',
             value: widget.ID,
           ),
           callback: (payload) {
@@ -283,6 +283,18 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
           }
         },
         child: Scaffold(
+          floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: SizedBox(
+              height: 30,
+              width: 30,
+              child: FloatingActionButton.small(backgroundColor: Colors.white,child:Image.asset("assets/images/ai.png"),onPressed: () {
+                type_msg.text = "@Aurex";
+
+              },),
+            ),
+          ),
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             automaticallyImplyLeading: true,
@@ -339,7 +351,8 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                         tag:
                                             contacts["contacts"][contacts["contacts"]
                                                 .indexWhere(
-                                                  (e) => e['chat_id'] == widget.ID,
+                                                  (e) =>
+                                                      e['chat_id'] == widget.ID,
                                                 )]["name"],
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(
@@ -351,7 +364,8 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                                 contacts["contacts"][contacts["contacts"]
                                                     .indexWhere(
                                                       (e) =>
-                                                          e['chat_id'] == widget.ID,
+                                                          e['chat_id'] ==
+                                                          widget.ID,
                                                     )]["profile_pic"],
                                               ),
                                               width: imageSize,
@@ -404,7 +418,9 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                       ),
                                       contacts["contacts"][contacts["contacts"]
                                                   .indexWhere(
-                                                    (e) => e['chat_id'] == widget.ID,
+                                                    (e) =>
+                                                        e['chat_id'] ==
+                                                        widget.ID,
                                                   )]["bio"] ==
                                               ""
                                           ? SizedBox.shrink()
@@ -522,7 +538,9 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                               Text(
                                 style: GoogleFonts.josefinSans(
                                   fontSize: 25,
-                                  color: Isdark ? const Color.fromARGB(177, 255, 255, 255) : Colors.black,
+                                  color: Isdark
+                                      ? const Color.fromARGB(177, 255, 255, 255)
+                                      : Colors.black,
                                 ),
                                 contacts["contacts"][contacts["contacts"]
                                     .indexWhere(
@@ -663,126 +681,141 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                 left: 0,
                 right: 0,
                 height: 50,
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        width: 300,
-                        height: 50,
-                        child: TextField(
-                          onChanged: (value) {
-                            // onTyping(widget.ID);
-                            msg_sent = false;
-                            temp_msg = type_msg.text;
-                            if (type_msg.text.trim().isEmpty) {
-                              msg_sent = true;
-                              setState(() {});
-                            }
-                            setState(() {});
-                          },
-                          onSubmitted: (value) async {
-                            HapticFeedback.selectionClick();
-                            msg_sent = false;
-                            setState(() {});
-                            final msg = type_msg.text;
-                            type_msg.text = "";
-
-                            await send_message(msg);
-                            temp_msg = "";
-                          },
-                          controller: type_msg,
-                          cursorColor: Colors.teal,
-                          decoration: InputDecoration(
-                            prefixIcon: IconButton(
-                              icon: Icon(
-                                Icons.photo_size_select_actual_rounded,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 13.0),
+                  child: Container(
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
                               ),
-                              color: const Color.fromARGB(255, 150, 215, 245),
-                              onPressed: () async {
-                                HapticFeedback.selectionClick();
-                                final File? image =
-                                    await pickImageFromGallery();
-                                if (image != null) {
-                                  setState(() {
-                                    selectedImage = image;
-                                  });
-                                }
-                              },
-                            ),
-                            hint: Padding(
-                              padding: const EdgeInsets.only(
-                                top: 20,
-                                bottom: 7,
-                              ),
-                              child: Text(
-                                "Send across the galaxy . . .",
-                                style: GoogleFonts.josefinSans(
-                                  letterSpacing: 1.5,
-                                  fontSize: 13,
+                              width: 300,
+                              height: 50,
+                              child: TextField(
+                                onChanged: (value) {
+                                  // onTyping(widget.ID);
+                                  msg_sent = false;
+                                  temp_msg = type_msg.text;
+                                  if (type_msg.text.trim().isEmpty) {
+                                    msg_sent = true;
+                                    setState(() {});
+                                  }
+                                  setState(() {});
+                                },
+                                onSubmitted: (value) async {
+                                  HapticFeedback.selectionClick();
+                                  msg_sent = false;
+                                  setState(() {});
+                                  final msg = type_msg.text;
+                                  type_msg.text = "";
+                                  if(msg.contains("@Aurex")){
+                                    gemini(msg);
+                                  }
+                                  await send_message(msg);
+                                  temp_msg = "";
+                                },
+                                controller: type_msg,
+                                cursorColor: Colors.teal,
+                                
+                                decoration: InputDecoration(
+                                  suffixIcon: IconButton(icon: Icon(Icons.alternate_email_rounded),color:const Color.fromARGB(255, 150, 215, 245),onPressed: () {
+                                   type_msg.text = "@Aurex";
+                                },),
+                                  prefixIcon: IconButton(
+                                    icon: Icon(
+                                      Icons.wallpaper_rounded,
+                                    ),
+                                    color: const Color.fromARGB(255, 150, 215, 245),
+                                    onPressed: () async {
+                                      HapticFeedback.selectionClick();
+                                      final File? image =
+                                          await pickImageFromGallery();
+                                      if (image != null) {
+                                        setState(() {
+                                          selectedImage = image;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                  hint: Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 20,
+                                      bottom: 7,
+                                    ),
+                                    child: Text(
+                                      "Send across the galaxy . . .",
+                                      style: GoogleFonts.josefinSans(
+                                        letterSpacing: 1.5,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                  filled: true,
+                                  fillColor: const Color.fromARGB(46, 158, 158, 158),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: (Isdark
+                                          ? const Color.fromARGB(255, 255, 255, 255)
+                                          : Colors.black),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: (Isdark ? Colors.white : Colors.black),
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                    borderSide: BorderSide(
+                                      color: (Isdark
+                                          ? const Color.fromARGB(255, 121, 120, 120)
+                                          : Colors.black),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            filled: true,
-                            fillColor: const Color.fromARGB(46, 158, 158, 158),
-                            disabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark
-                                    ? const Color.fromARGB(255, 255, 255, 255)
-                                    : Colors.black),
-                              ),
+                          ),
+                          SizedBox(width: 7),
+                          Container(
+                            height: 50,
+                            width: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: Color.fromARGB(255, 59, 148, 181),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark ? Colors.white : Colors.black),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(
-                                color: (Isdark
-                                    ? const Color.fromARGB(255, 121, 120, 120)
-                                    : Colors.black),
-                              ),
+                            child: IconButton(
+                              onPressed: () async {
+                                HapticFeedback.selectionClick();
+                                msg_sent = false;
+                                setState(() {});
+                                final msg = type_msg.text;
+                                type_msg.text = "";
+                                if(msg.contains("@Aurex")){
+                                    gemini(msg);
+                                  }
+                                if (msg != "") {
+                                  await send_message(msg);
+                                }
+                                if (selectedImage != null) {
+                                  await uploadImageBase64(selectedImage!);
+                                }
+                                temp_msg = "";
+                                selectedImage = null;
+                                setState(() {});
+                              },
+                              icon: Icon(Icons.send_rounded, size: 25),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      SizedBox(width: 7),
-                      Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          color: Color.fromARGB(255, 59, 148, 181),
-                        ),
-                        child: IconButton(
-                          onPressed: () async {
-                            HapticFeedback.selectionClick();
-                            msg_sent = false;
-                            setState(() {});
-                            final msg = type_msg.text;
-                            type_msg.text = "";
-
-                            if (msg != "") {
-                              await send_message(msg);
-                            }
-                            if (selectedImage != null) {
-                              await uploadImageBase64(selectedImage!);
-                            }
-                            temp_msg = "";
-                            selectedImage = null;
-                            setState(() {});
-                          },
-                          icon: Icon(Icons.send_rounded, size: 25),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -917,37 +950,63 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
           ),
           child: Padding(
             padding: const EdgeInsets.all(4.0),
-            child: ClipRRect(
-              borderRadius: BorderRadiusGeometry.circular(12),
-              child: RepaintBoundary(
-                child: CachedNetworkImage(
-                  filterQuality: FilterQuality.high,
-                  imageUrl: chat["messages"][no]["msg"].split(SECRET_MARKER)[1],
-                  fit: BoxFit.cover,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadiusGeometry.circular(12),
+                  child: RepaintBoundary(
+                    child: CachedNetworkImage(
+                      filterQuality: FilterQuality.high,
+                      imageUrl: chat["messages"][no]["msg"].split(
+                        SECRET_MARKER,
+                      )[1],
+                      fit: BoxFit.cover,
 
-                  placeholder: (context, url) => const Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        padding: EdgeInsets.all(5),
-                        color: Colors.black,
-                        constraints: BoxConstraints(
-                          minWidth: 20,
-                          minHeight: 20,
+                      placeholder: (context, url) => const Center(
+                        child: SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            padding: EdgeInsets.all(5),
+                            color: Colors.black,
+                            constraints: BoxConstraints(
+                              minWidth: 20,
+                              minHeight: 20,
+                            ),
+                          ),
                         ),
                       ),
+
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.broken_image),
+
+                      memCacheWidth: 400,
+                      fadeInDuration: Duration.zero,
+                      fadeOutDuration: Duration.zero,
                     ),
                   ),
-
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.broken_image),
-
-                  memCacheWidth: 400,
-                  fadeInDuration: Duration.zero,
-                  fadeOutDuration: Duration.zero,
                 ),
-              ),
+                Positioned(
+                  right: 10,
+                  bottom: 10,
+                  child: Text(
+                    textAlign: TextAlign.end,
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 12,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2), // X and Y position
+                          blurRadius: 4, // Softness
+                          color: Colors.black, // Shadow color
+                        ),
+                      ],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -1077,62 +1136,104 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
           children: [
             Align(
               alignment: Alignment.centerLeft,
-              child: Container(
-                width: 50,
-                child: Text(
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  chat["messages"][no]["sender_name"],
-                  style: GoogleFonts.josefinSans(
-                    fontSize: 9,
-                    color: isdark ? const Color.fromARGB(255, 173, 200, 238):kBackground,
-                    fontWeight: FontWeight.w600,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(5),
+                    child: Container(
+                      height: 20,
+                      width: 20,
+                      child: Image.network(
+                        chat["messages"][no]["sender_prof_pic"]??
+                            "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/1771249136595.jpg",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(width: 2),
+                  Text(
+                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]} ${chat["messages"][no]["sender_name"].toString().split(" ")[1]}",
+                    style: GoogleFonts.josefinSans(
+                      fontSize: 9,
+                      color: isdark
+                          ? const Color.fromARGB(255, 173, 200, 238)
+                          : kBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: Color.fromARGB(255, 109, 168, 174),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(15),
-                  bottomRight: Radius.circular(15),
-                  topRight: Radius.circular(15),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(12),
-                  child: RepaintBoundary(
-                    child: CachedNetworkImage(
-                      imageUrl: chat["messages"][no]["msg"].split(SECRET_MARKER)[1],
-                      fit: BoxFit.cover,
-            
-                      placeholder: (context, url) => const Center(
-                        child: SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            padding: EdgeInsets.all(5),
-                            color: Colors.black,
-                            constraints: BoxConstraints(
-                              minWidth: 20,
-                              minHeight: 20,
+            SizedBox(height: 2),
+            Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 109, 168, 174),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(15),
+                      bottomRight: Radius.circular(15),
+                      topRight: Radius.circular(15),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(12),
+                      child: RepaintBoundary(
+                        child: CachedNetworkImage(
+                          imageUrl: chat["messages"][no]["msg"].split(
+                            SECRET_MARKER,
+                          )[1],
+                          fit: BoxFit.cover,
+
+                          placeholder: (context, url) => const Center(
+                            child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                padding: EdgeInsets.all(5),
+                                color: Colors.black,
+                                constraints: BoxConstraints(
+                                  minWidth: 20,
+                                  minHeight: 20,
+                                ),
+                              ),
                             ),
                           ),
+
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.broken_image),
+                          memCacheWidth: 400,
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
                         ),
                       ),
-            
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.broken_image),
-                      memCacheWidth: 400,
-                      fadeInDuration: Duration.zero,
-                      fadeOutDuration: Duration.zero,
                     ),
                   ),
                 ),
-              ),
+                Positioned(
+                  left: 10,
+                  bottom: 10,
+                  child: Text(
+                    textAlign: TextAlign.end,
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 12,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2), // X and Y position
+                          blurRadius: 4, // Softness
+                          color: Colors.black, // Shadow color
+                        ),
+                      ],
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -1241,21 +1342,38 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
         child: Column(
           children: [
             Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                width: 50,
-                child: Text(
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  chat["messages"][no]["sender_name"],
-                  style: GoogleFonts.josefinSans(
-                    fontSize: 9,
-                    color: isdark ? const Color.fromARGB(255, 173, 200, 238):kBackground,
-                    fontWeight: FontWeight.w600,
+              alignment: AlignmentGeometry.topLeft,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadiusGeometry.circular(5),
+                    child: Container(
+                      color: Colors.white,
+                      height: 20,
+                      width: 20,
+                      child: Image.network(
+                        chat["messages"][no]["sender_prof_pic"]! ??
+                            "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/1771249136595.jpg",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(width: 2),
+                  Text(
+                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]} ${chat["messages"][no]["sender_name"].toString().split(" ")[1]}",
+                    style: GoogleFonts.josefinSans(
+                      fontSize: 9,
+                      color: isdark
+                          ? const Color.fromARGB(255, 173, 200, 238)
+                          : kBackground,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
+            SizedBox(height: 2),
             Align(
               alignment: Alignment.topLeft,
               child: Container(
@@ -1279,15 +1397,38 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                     left: 7,
                     right: 7,
                   ),
-                  child: Text(
-                    chat["messages"][no]["msg"],
-                    style: GoogleFonts.josefinSans(
-                      color: const Color.fromARGB(255, 0, 0, 0),
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        chat["messages"][no]["msg"],
+                        style: GoogleFonts.josefinSans(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                        ),
+                      ),
+                      Text(
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.left,
+                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 10,
+                          color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2), // X and Y position
+                          blurRadius: 4, // Softness
+                          color: Colors.black, // Shadow color
+                        ),],
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
+            // Align(
           ],
         ),
       ),
@@ -1390,9 +1531,32 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                 left: 7,
                 right: 7,
               ),
-              child: Text(
-                chat["messages"][no]["msg"],
-                style: GoogleFonts.josefinSans(color: Colors.black),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    chat["messages"][no]["msg"],
+                    style: GoogleFonts.josefinSans(color: Colors.black),
+                  ),
+                  Text(
+                    softWrap: true,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.right,
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 10,
+                      
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(2, 2), // X and Y position
+                          blurRadius: 4, // Softness
+                          color: Colors.black, // Shadow color
+                        ),],
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -1520,5 +1684,69 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
   /////  refresh contacts   //////
   Future<void> user_contact() async {
     await appKey.currentState?.user_contacts();
+  }
+
+///////   chatbot   //////
+   
+Future<void> gemini(String prompt) async {
+  chatApi.fetch_api();
+  print("asking 🚀🚀");
+  String res = "Error";
+  for (String apiKey in api_keys.value) {
+    final url = Uri.parse(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "contents": [
+            {
+              "parts": [
+                {
+                  "text":
+                      prompt +
+                      " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info"
+                }
+              ]
+            }
+          ]
+        }),
+      );
+
+      print("Status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        res = jsonDecode(response.body)
+            ["candidates"][0]["content"]["parts"][0]["text"];
+        break;
+      }
+      if (response.statusCode == 429 ||
+          response.statusCode == 401 ||
+          response.statusCode == 403) {
+        print("Key failed, trying next...");
+        continue;
+      } else {
+        print("Other error: ${response.statusCode}");
+        break;
+      }
+
+    } catch (e) {
+      print("Exception: $e");
+      continue;
+    }
+  }
+  send_response(res);
+  setState(() {});
+}
+
+  Future<void> send_response(String msg) async {
+    final email = await FirebaseAuth.instance.currentUser?.email;
+    await chatApi.addMessagegrp("Aurex AI",widget.ID, msg,true);
+    // await all_chats_list();
+    // user_contact();
+    print("🚀🚀🚀🚀 response sent");
   }
 }

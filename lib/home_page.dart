@@ -112,14 +112,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (value == "delete") {
                     final email =
                         await FirebaseAuth.instance.currentUser?.email;
-                    
-                    if(contacts["contacts"][num]["group"]){
-                      await chatApi.remove_member_from_group(email!, contacts["contacts"][num]["chat_id"]);
-                    }else{
+
+                    if (contacts["contacts"][num]["group"]) {
+                      await chatApi.remove_member_from_group(
+                        email!,
+                        contacts["contacts"][num]["chat_id"],
+                      );
+                    } else {
                       await chatApi.removeContactAndClearChat(
-                      email!,
-                      contacts["contacts"][num]["id"],
-                    );
+                        email!,
+                        contacts["contacts"][num]["id"],
+                      );
                     }
                     await user_contacts();
                     print("removed");
@@ -133,9 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                    contacts["contacts"][num]["group"]?GroupChat(ID:contacts["contacts"][num]["chat_id"]):
-                        ChatPage(ID: contacts["contacts"][num]["id"]),
+                    builder: (context) => contacts["contacts"][num]["group"]
+                        ? GroupChat(ID: contacts["contacts"][num]["chat_id"])
+                        : ChatPage(ID: contacts["contacts"][num]["id"]),
                   ),
                 );
               },
@@ -189,7 +192,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 child: CachedNetworkImage(
                                                   imageUrl: highQualityUrl(
                                                     contacts["contacts"][num]["profile_pic"],
-                                                    
                                                   ),
                                                   width: imageSize,
                                                   height: imageSize,
@@ -371,7 +373,13 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    chatApi.fetch_api();
     chatApi.savefcm();
+
+    if(Hive.box("aurex_api").get("keys")!=null){
+      api_keys.value = Hive.box("aurex_api").get("keys");
+    }
+
     isdark = Hive.box("isdark").get("isDark") ?? true;
     Hive.box("isdark").put("isDark", isdark);
     Future.microtask(() {
@@ -391,6 +399,77 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      drawerEnableOpenDragGesture: false,
+      drawerEdgeDragWidth: 200,
+
+
+      drawer: SafeArea(
+        child: Drawer(
+          width: 300,
+          child: Column(
+        
+            children: [SizedBox(
+              height: 20,
+            ),
+              ClipRRect(
+                borderRadius: BorderRadiusGeometry.circular(30),
+                child: CachedNetworkImage(
+                        filterQuality: FilterQuality.high,
+                        imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              padding: EdgeInsets.all(5),
+                              color: Colors.black,
+                              constraints: BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.broken_image),
+                        fadeInDuration: Duration.zero,
+                        fadeOutDuration: Duration.zero,
+                      ),
+              ),
+              Text(FirebaseAuth.instance.currentUser!.displayName ?? "astro"),
+              ElevatedButton(onPressed: () async{
+                await FirebaseAuth.instance.currentUser!.updateDisplayName("Onkar");
+                print("Name changed");
+                print(FirebaseAuth.instance.currentUser!.displayName);
+                setState(() {
+                  
+                });
+              }, child: Text("Change name")),
+
+              ElevatedButton(
+                onPressed: () async {
+                  // await signOut();
+                  // if (FirebaseAuth.instance.currentUser == null) {
+                  //   Navigator.pushReplacement(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) =>
+                  //           LoginPage(toggleTheme: widget.toggleTheme),
+                  //     ),
+                  //   );
+                  // }
+                },
+                child: Text("Logout !"),
+              ),
+        
+            ],
+        
+          ),
+        ),
+      ),
+
+
       floatingActionButton: FloatingActionButton(
         elevation: 30,
         backgroundColor: kSentMessage,
@@ -431,99 +510,64 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               );
-            
-              
-/////// check  ///////  
 
+              /////// check  ///////
             },
             child: CircleAvatar(
               maxRadius: 15,
-              backgroundColor: isdark
-                  ? kSentMessage
-                  : kTextHint,
-              // backgroundImage: AssetImage("assets/images/ai.png"),
-              child: Image.asset("assets/images/ai.png",color:isdark? Colors.white:Colors.black,),
+              backgroundColor: isdark ? kSentMessage : kTextHint,
               foregroundColor: Colors.white,
+              // backgroundImage: AssetImage("assets/images/ai.png"),
+              child: Image.asset(
+                "assets/images/ai.png",
+                color: isdark ? Colors.white : Colors.black,
+              ),
             ),
           ),
           SizedBox(width: 15),
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              showMenu(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadiusGeometry.circular(20),
-                ),
-                popUpAnimationStyle: AnimationStyle(
-                  duration: Duration(milliseconds: 200),
-                  reverseDuration: Duration(milliseconds: 100),
-                ),
-                shadowColor: kAccentVariant,
-                elevation: 100,
-                context: context,
-                position: RelativeRect.fromLTRB(100, 80, 0, 0),
-                menuPadding: EdgeInsets.all(2),
-                items: [
-                  PopupMenuItem(
-                    value: "logout",
-                    child: Row(
-                      children: [
-                        Icon(Icons.logout, color: Colors.red),
-                        SizedBox(width: 10),
-                        Text("Logout"),
-                      ],
-                    ),
-                  ),
-                ],
-              ).then((value) async {
-                if (value == "logout") {
-                  await signOut();
-                  if (FirebaseAuth.instance.currentUser == null) {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            LoginPage(toggleTheme: widget.toggleTheme),
-                      ),
-                    );
-                  }
-                }
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 10),
-              child: Container(
-                height: 43,
-                width: 43,
-                child: ClipRRect(
-                  borderRadius: BorderRadiusGeometry.circular(13),
-                  child: CachedNetworkImage(
-                    filterQuality: FilterQuality.high,
-                    imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => const Center(
-                      child: SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          padding: EdgeInsets.all(5),
-                          color: Colors.black,
-                          constraints: BoxConstraints(
-                            minWidth: 20,
-                            minHeight: 20,
+          Builder(
+            builder: (context) {
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  Scaffold.of(context).openDrawer();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Container(
+                    height: 43,
+                    width: 43,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(13),
+                      child: CachedNetworkImage(
+                        filterQuality: FilterQuality.high,
+                        imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              padding: EdgeInsets.all(5),
+                              color: Colors.black,
+                              constraints: BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                            ),
                           ),
                         ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.broken_image),
+                        fadeInDuration: Duration.zero,
+                        fadeOutDuration: Duration.zero,
                       ),
+                      // child: Image.network(contacts["contacts"][num]["profile_pic"]),
                     ),
-                    errorWidget: (context, url, error) =>
-                        const Icon(Icons.broken_image),
-                    fadeInDuration: Duration.zero,
-                    fadeOutDuration: Duration.zero,
                   ),
-                  // child: Image.network(contacts["contacts"][num]["profile_pic"]),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ],
         title: Text(
@@ -548,9 +592,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     contacts["contact_count"] == 0
                 ? ListView(
                     physics: AlwaysScrollableScrollPhysics(),
-                    children: [
-                      Center(child: SizedBox.shrink()),
-                    ],
+                    children: [Center(child: SizedBox.shrink())],
                   )
                 : ListView.builder(
                     physics: AlwaysScrollableScrollPhysics(),
@@ -564,6 +606,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
-
 }

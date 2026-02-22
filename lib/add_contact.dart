@@ -107,48 +107,52 @@ class _AddContactState extends State<AddContact> {
         child: Center(
           child: Column(
             children: [
-              Container(
-                height: 50,
-                width: 370,
-                child: TextField(
-                  controller: searchq,
-                  onChanged: (value) {
-                    filterList();
-                  },
-                  cursorColor: isdark
-                      ? const Color.fromARGB(255, 122, 218, 238)
-                      : kPrimaryVariant,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, size: 25),
-                    hint: Text(
-                      "Find a star to chat with.....",
-                      style: GoogleFonts.josefinSans(
-                        letterSpacing: 2,
-                        color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal:8.0),
+                child: Container(
+                  height: 50,
+                  // width: 370,
+                  width: double.maxFinite,
+                  child: TextField(
+                    controller: searchq,
+                    onChanged: (value) {
+                      filterList();
+                    },
+                    cursorColor: isdark
+                        ? const Color.fromARGB(255, 122, 218, 238)
+                        : kPrimaryVariant,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, size: 25),
+                      hint: Text(
+                        "Find a star to chat with.....",
+                        style: GoogleFonts.josefinSans(
+                          letterSpacing: 2,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    fillColor: kDivider,
-                    filled: true,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      fillColor: kDivider,
+                      filled: true,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 ),
@@ -417,7 +421,7 @@ class _AddContactState extends State<AddContact> {
                 ),
                 SizedBox(width: 9),
                 SizedBox(
-                  width: 230,
+                  // width: 230,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

@@ -189,56 +189,58 @@ class _CreateGroupState extends State<CreateGroup> {
                       ),
 
                       SizedBox(width: 6),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 5.0,
-                          right: 8,
-                          top: 8,
-                          bottom: 8,
-                        ),
-                        child: Container(
-                          height: 54,
-                          width: 289,
-                          child: TextField(
-                            controller: grpname,
-                            cursorColor: isdark
-                                ? const Color.fromARGB(255, 122, 218, 238)
-                                : kPrimaryVariant,
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                Icons.double_arrow_rounded,
-                                size: 25,
-                                color: isdark ? Colors.white : Colors.black,
-                              ),
-                              hint: Text(
-                                "Enter Group Name...",
-                                style: GoogleFonts.josefinSans(
-                                  letterSpacing: 2,
-                                  color: Colors.white,
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            left: 5.0,
+                            right: 8,
+                            top: 8,
+                            bottom: 8,
+                          ),
+                          child: Container(
+                            height: 54,
+                            width: 289,
+                            child: TextField(
+                              controller: grpname,
+                              cursorColor: isdark
+                                  ? const Color.fromARGB(255, 122, 218, 238)
+                                  : kPrimaryVariant,
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  Icons.double_arrow_rounded,
+                                  size: 25,
+                                  color: isdark ? Colors.white : Colors.black,
                                 ),
-                              ),
-                              fillColor: kDivider,
-                              filled: true,
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  strokeAlign: BorderSide.strokeAlignCenter,
-                                  color: kTextPrimary,
+                                hint: Text(
+                                  "Enter Group Name...",
+                                  style: GoogleFonts.josefinSans(
+                                    letterSpacing: 2,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  strokeAlign: BorderSide.strokeAlignCenter,
-                                  color: kTextPrimary,
+                                fillColor: kDivider,
+                                filled: true,
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                    color: kTextPrimary,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  strokeAlign: BorderSide.strokeAlignCenter,
-                                  color: kTextPrimary,
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                    color: kTextPrimary,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
                                 ),
-                                borderRadius: BorderRadius.circular(15),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    strokeAlign: BorderSide.strokeAlignCenter,
+                                    color: kTextPrimary,
+                                  ),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
                               ),
                             ),
                           ),
@@ -249,87 +251,82 @@ class _CreateGroupState extends State<CreateGroup> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(
-                  left: 10,
-                  right: 6,
-                  top: 8,
-                  bottom: 8,
-                ),
+                padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: kTextHint,
-                      ),
-                      height: 50,
-                      width: 240,
-                      child: Material(
-                        borderRadius: BorderRadius.circular(15),
-                        color: kTextHint,
-                        child: InkWell(
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          splashColor: kInputBackground,
-                          onTap: () async {
-                            HapticFeedback.heavyImpact();
-                            print(selectedImage == null);
-                            selectedImage = await pickImageFromGallery();
-                            imguploading = true;
-                            setState(() {});
-                            if (selectedImage != null)
-                              await uploadImageBase64(selectedImage!);
-                            imguploading = false;
-                            setState(() {});
-                            print(selectedImage == null);
-                          },
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(5.0),
-                                child: Container(
-                                  height: 40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15),
-                                    color: kPrimaryVariant,
+                          color: kTextHint,
+                        ),
+                        height: 50,
+                        width: 240,
+                        child: Material(
+                          borderRadius: BorderRadius.circular(15),
+                          color: kTextHint,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(15),
+                            splashColor: kInputBackground,
+                            onTap: () async {
+                              HapticFeedback.heavyImpact();
+                              print(selectedImage == null);
+                              selectedImage = await pickImageFromGallery();
+                              imguploading = true;
+                              setState(() {});
+                              if (selectedImage != null)
+                                await uploadImageBase64(selectedImage!);
+                              imguploading = false;
+                              setState(() {});
+                              print(selectedImage == null);
+                            },
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      color: kPrimaryVariant,
+                                    ),
+                                    child: imguploading
+                                        ? CircularProgressIndicator(
+                                            strokeWidth: 2.5,
+                                            color: isdark
+                                                ? Colors.white
+                                                : Colors.black,
+                                            padding: EdgeInsets.all(10),
+                                          )
+                                        : Icon(
+                                            Icons.file_upload_outlined,
+                                            color: isdark
+                                                ? Colors.white
+                                                : Colors.black,
+                                          ),
                                   ),
-                                  child: imguploading
-                                      ? CircularProgressIndicator(
-                                          strokeWidth: 2.5,
-                                          color: isdark
-                                              ? Colors.white
-                                              : Colors.black,
-                                          padding: EdgeInsets.all(10),
-                                        )
-                                      : Icon(
-                                          Icons.file_upload_outlined,
-                                          color: isdark
-                                              ? Colors.white
-                                              : Colors.black,
-                                        ),
                                 ),
-                              ),
-                              // SizedBox(width: 6,),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  "Upload Profile Image",
-                                  style: GoogleFonts.josefinSans(
-                                    fontSize: 14,
-                                    color: isdark ? Colors.white : Colors.black,
+                                // SizedBox(width: 6,),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "Upload Profile Image",
+                                    style: GoogleFonts.josefinSans(
+                                      fontSize: 14,
+                                      color: isdark ? Colors.white : Colors.black,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.only(
                         left: 8,
-                        right: 8,
                         top: 8,
                         bottom: 8,
                       ),
@@ -412,48 +409,52 @@ class _CreateGroupState extends State<CreateGroup> {
                 ),
               ),
 
-              Container(
-                height: 50,
-                width: 370,
-                child: TextField(
-                  controller: searchq,
-                  onChanged: (value) {
-                    filterList();
-                  },
-                  cursorColor: isdark
-                      ? const Color.fromARGB(255, 122, 218, 238)
-                      : kPrimaryVariant,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, size: 25),
-                    hint: Text(
-                      "Search among the stars.....",
-                      style: GoogleFonts.josefinSans(
-                        letterSpacing: 2,
-                        color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Container(
+                  height: 50,
+                  // width: 370,
+                  width: double.maxFinite,
+                  child: TextField(
+                    controller: searchq,
+                    onChanged: (value) {
+                      filterList();
+                    },
+                    cursorColor: isdark
+                        ? const Color.fromARGB(255, 122, 218, 238)
+                        : kPrimaryVariant,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.search, size: 25),
+                      hint: Text(
+                        "Search among the stars.....",
+                        style: GoogleFonts.josefinSans(
+                          letterSpacing: 2,
+                          color: Colors.white,
+                        ),
                       ),
-                    ),
-                    fillColor: kDivider,
-                    filled: true,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      fillColor: kDivider,
+                      filled: true,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        strokeAlign: BorderSide.strokeAlignCenter,
-                        color: kTextPrimary,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          strokeAlign: BorderSide.strokeAlignCenter,
+                          color: kTextPrimary,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                       ),
-                      borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 ),
@@ -550,46 +551,49 @@ class _CreateGroupState extends State<CreateGroup> {
                   ),
                 ),
                 SizedBox(width: 9),
-                SizedBox(
-                  width: 230,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 5),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: 300,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 210,
-                                child: Text(
-                                  result["users"][num]["name"],
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: GoogleFonts.josefinSans(
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 15,
+                Expanded(
+                  child: SizedBox(
+                    width: 230,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 5),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox(
+                            width: 300,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 210,
+                                  child: Text(
+                                    result["users"][num]["name"],
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.josefinSans(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        child: Text(
-                          style: GoogleFonts.josefinSans(color: Colors.grey),
-                          result["users"][num]["user_id"],
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
+                        SizedBox(
+                          child: Text(
+                            style: GoogleFonts.josefinSans(color: Colors.grey),
+                            result["users"][num]["user_id"],
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 Checkbox(
+                  activeColor: const Color.fromARGB(255, 79, 182, 82),
                   value: is_selected,
                   onChanged: (value) {
                     HapticFeedback.heavyImpact();

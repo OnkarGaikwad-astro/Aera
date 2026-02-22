@@ -90,6 +90,7 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox('cache');
   await Hive.openBox('isdark');
+  await Hive.openBox('aurex_api');
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await setupNotificationChannel();
@@ -126,6 +127,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    chatApi.fetch_api();
     chatApi.savefcm();
     chatApi.setOnline();
     isdark = Hive.box("isdark").get("isDark") ?? true;
@@ -161,6 +163,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> retrive_data() async {
+    if(Hive.box("aurex_api").get("keys")!=null){
+      api_keys.value = Hive.box("aurex_api").get("keys");
+    }
+    
     final box = Hive.box('cache');
     if (box.get('all_contacts') != null) {
       all_contacts.value = Map<String, dynamic>.from(box.get('all_contacts'));

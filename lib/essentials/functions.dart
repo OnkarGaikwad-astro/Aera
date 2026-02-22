@@ -5,6 +5,7 @@ import 'package:Aera/essentials/data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -15,6 +16,15 @@ class SupabaseChatApi {
   SupabaseChatApi({required this.notificationServerUrl});
   String _istNow() =>
       DateFormat('yyyy-MM-dd \n HH:mm:ss').format(DateTime.now());
+
+////   fetch aurex api key   /////
+Future<void> fetch_api() async {
+  final response = await _db.from("aurex_api").select("keys");
+  api_keys.value =List<String>.from(response.first["keys"]);
+  Hive.box("aurex_api").put("keys",response.first["keys"]);
+  print(api_keys.value);
+}
+
 
   ////  save user  ////
 
@@ -420,13 +430,23 @@ class SupabaseChatApi {
     return pair.join("__");
   }
 
+  Future<String?> getUsersTokenforgrp(String userId) async {
+    final r = await _db
+        .from('users')
+        .select('fcm_token')
+        .eq('user_id', userId)
+        .maybeSingle();
+    return r?['fcm_token'];
+  }
+
   Future<void> addMessageFast(
     String sender,
     String receiver,
     String msg,
+    String chatId
   ) async {
-    final chatId = buildChatId(sender, receiver);
-    final members = all_contacts.value["contacts"][all_contacts.value["contacts"].indexWhere((e) => e['chat_id'] ==chatId )]["members"];
+    // final chatId = buildChatId(sender, receiver);
+    final members = all_contacts.value["contacts"][all_contacts.value["contacts"].indexWhere((e) => e['chat_id'] == chatId )]["members"];
    
     await _db.from('messages').insert({
       'chat_id': chatId,
@@ -435,27 +455,23 @@ class SupabaseChatApi {
       "members" : members,
       'msg': msg,
     });
-    // final contact = all_contacts.value["contacts"].firstWhere(
-    //   (c) => c["id"] == receiver,
-    // );
-
-    // print("fetching fcm 😋 ");
-    // final fcmToken = await contact["fcm_token"];
-    // print("😋😋😋 fcm token :${fcmToken}");
-    // if (fcmToken != null && fcmToken.isNotEmpty) {
-    //   Future.microtask(() {
-    //     http.post(
-    //       Uri.parse(notificationServerUrl),
-    //       headers: {'Content-Type': 'application/json'},
-    //       body: jsonEncode({
-    //         'token': fcmToken,
-    //         'title': FirebaseAuth.instance.currentUser?.displayName,
-    //         'body': msg.contains('\uE000') ? '⦿ Image' : msg,
-    //         'send_id': sender,
-    //       }),
-    //     );
-    //   });
-    // }
+     print("fetching fcm 😋 ");
+    final fcm = await getUserToken(receiver);
+    print("😋😋😋 fcm token :${fcm}");
+    if (fcm != null && fcm.isNotEmpty) {
+      Future.microtask(() {
+        http.post(
+          Uri.parse(notificationServerUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'token': fcm,
+            'title':sender == "Aurex AI" ?"Aurex AI" :FirebaseAuth.instance.currentUser?.displayName,
+            'body': msg.contains('\uE000') ? '⦿ Image' : msg,
+            'send_id': sender,
+          }),
+        );
+      });
+    }
   }
 
    Future<void> addMsgforchatbot(
@@ -479,12 +495,15 @@ class SupabaseChatApi {
     String sender,
     String chatId,
     String msg,
+    bool bot
   ) async {
-    final name = await FirebaseAuth.instance.currentUser?.displayName;
-    final members = all_contacts.value["contacts"][all_contacts.value["contacts"].indexWhere((e) => e['chat_id'] ==chatId )]["members"];
+    final profpic = bot ? "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/ai.png" : FirebaseAuth.instance.currentUser!.photoURL;
+    final name = bot ? "Aurex Ai" : await FirebaseAuth.instance.currentUser?.displayName;
+    final members = all_contacts.value["contacts"][all_contacts.value["contacts"].indexWhere((e) => e['chat_id'] == chatId )]["members"];
     await _db.from('messages').insert({
       'chat_id': chatId,
       'sender_id': sender,
+      "sender_prof_pic" : profpic,
       'receiver_id': "",
       "sender_name":name,
       "members":members,
@@ -551,7 +570,7 @@ class SupabaseChatApi {
     final rows = await _db
         .from('messages')
         .select(
-          'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name',
+          'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic',
         )
         .or('sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}')
         .order('timestamp', ascending: true);
@@ -564,6 +583,7 @@ class SupabaseChatApi {
       chatMap.putIfAbsent(chatid, () => []);
       chatMap[chatid]!.add({
         'msg': m['msg'],
+        "sender_prof_pic" : m["sender_prof_pic"] ?? "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/1771249136595.jpg" ,
         'receiver_id': m['receiver_id'],
         "sender_name":m['sender_name'],
         'sender_id': m['sender_id'],
@@ -621,6 +641,7 @@ class SupabaseChatApi {
     print("Done Removing 🛰️🛰️🛰️🛰️🚀🚀 ");
   }
 
+
   /////  add members to group while creating  /////
   Future<void> create_group(List users, String name,String pic,String chatId) async {
     final email = FirebaseAuth.instance.currentUser?.email;
@@ -640,6 +661,7 @@ class SupabaseChatApi {
     );
     print("Done Adding 🛰️🛰️🛰️🛰️🚀🚀 ");
   }
+
 
   ////  delete message ////
   Future<void> deleteSingleMessage(String chatId, int convoId) async {
