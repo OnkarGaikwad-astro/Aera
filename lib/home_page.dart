@@ -449,16 +449,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
               ElevatedButton(
                 onPressed: () async {
-                  // await signOut();
-                  // if (FirebaseAuth.instance.currentUser == null) {
-                  //   Navigator.pushReplacement(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) =>
-                  //           LoginPage(toggleTheme: widget.toggleTheme),
-                  //     ),
-                  //   );
-                  // }
+                  await signOut();
+                  if (FirebaseAuth.instance.currentUser == null) {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            LoginPage(toggleTheme: widget.toggleTheme),
+                      ),
+                    );
+                  }
                 },
                 child: Text("Logout !"),
               ),
@@ -510,7 +510,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               );
-
               /////// check  ///////
             },
             child: CircleAvatar(

@@ -20,9 +20,8 @@ class SupabaseChatApi {
 ////   fetch aurex api key   /////
 Future<void> fetch_api() async {
   final response = await _db.from("aurex_api").select("keys");
-  api_keys.value =List<String>.from(response.first["keys"]);
-  Hive.box("aurex_api").put("keys",response.first["keys"]);
-  print(api_keys.value);
+  api_keys.value = List<String>.from(response.first["keys"]);
+  Hive.box("aurex_api").put("keys",List<String>.from(response.first["keys"]));
 }
 
 

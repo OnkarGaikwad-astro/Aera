@@ -283,18 +283,6 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
           }
         },
         child: Scaffold(
-          floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: SizedBox(
-              height: 30,
-              width: 30,
-              child: FloatingActionButton.small(backgroundColor: Colors.white,child:Image.asset("assets/images/ai.png"),onPressed: () {
-                type_msg.text = "@Aurex";
-
-              },),
-            ),
-          ),
           resizeToAvoidBottomInset: true,
           appBar: AppBar(
             automaticallyImplyLeading: true,
@@ -1153,7 +1141,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                   ),
                   SizedBox(width: 2),
                   Text(
-                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]} ${chat["messages"][no]["sender_name"].toString().split(" ")[1]}",
+                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]}",
                     style: GoogleFonts.josefinSans(
                       fontSize: 9,
                       color: isdark
@@ -1361,7 +1349,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                   ),
                   SizedBox(width: 2),
                   Text(
-                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]} ${chat["messages"][no]["sender_name"].toString().split(" ")[1]}",
+                    "${chat["messages"][no]["sender_name"].toString().split(" ")[0]}",
                     style: GoogleFonts.josefinSans(
                       fontSize: 9,
                       color: isdark
