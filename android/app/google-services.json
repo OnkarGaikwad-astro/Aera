@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "86895289380",
+    "firebase_url": "https://galexi-eebbe-default-rtdb.firebaseio.com",
     "project_id": "galexi-eebbe",
     "storage_bucket": "galexi-eebbe.firebasestorage.app"
   },
@@ -12,7 +13,28 @@
           "package_name": "com.example.aurex_messenger"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "86895289380-72m2ob53ctsnsckgko8o733ecuanlk89.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aurex_messenger",
+            "certificate_hash": "5c7515392b7ec1c2a2832e6c3fb3cddc4456482d"
+          }
+        },
+        {
+          "client_id": "86895289380-mq367j9tp7m6u2arr497m2c9fi11fk5l.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aurex_messenger",
+            "certificate_hash": "7195dafb3eb25d3fd3c5f9986b27ad416e4a4768"
+          }
+        },
+        {
+          "client_id": "86895289380-3t07uqrjhff12bh5ugt8nd47t86d673e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBWEepCPLLtVTmU9PJ_Lnv4P45ZBwem6fQ"
@@ -20,7 +42,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "86895289380-3t07uqrjhff12bh5ugt8nd47t86d673e.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "86895289380-s6b3ch9smacesd3tiob7uispncumevbr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.aurexMessenger"
+              }
+            }
+          ]
         }
       }
     }
