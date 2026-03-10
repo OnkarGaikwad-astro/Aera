@@ -36,7 +36,7 @@ jobs:
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
           echo "storeFile=release-keystore.jks" >> android/key.properties
 
-      - run: flutter build apk --release
+      - run: flutter build apk --split-per-abi
 
       - uses: softprops/action-gh-release@v2
         with:
