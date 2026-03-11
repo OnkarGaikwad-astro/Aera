@@ -497,6 +497,7 @@ Future<void> fetch_api() async {
       'receiver_id': receiver,
       "members" : members,
       "sender_name" : sender_name,
+      "type":type,
       'msg': msg,
     });}
 

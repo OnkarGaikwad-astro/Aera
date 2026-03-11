@@ -125,7 +125,20 @@ bool isreplying = false ;
     otherUserTyping = true;
     gemini(msg);
     final email = await FirebaseAuth.instance.currentUser?.email;
-    await chatApi.addMsgforchatbot(email!, "chatbot", "${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}"+msg,type,your_name);
+    await chatApi.addMsgforchatbot(email!, "chatbot",msg,type,your_name);
+    
+    await all_chats_list();
+    user_contact();
+    playClick();
+    print("🚀🚀🚀🚀 msg sent");
+  }
+  Future<void> send_reply_message(String msg,String type) async {
+    
+    if (msg == "") return;
+    otherUserTyping = true;
+    gemini("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg);
+    final email = await FirebaseAuth.instance.currentUser?.email;
+    await chatApi.addMsgforchatbot(email!, "chatbot", "${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}",type,your_name);
     
     await all_chats_list();
     user_contact();
@@ -438,7 +451,12 @@ bool isreplying = false ;
                                 final msg = type_msg.text;
                                 type_msg.text = "";
                                 if(isreplying && replyid!=-1){
-                                await send_message("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg,"reply");}
+                                await send_reply_message(msg,"reply");
+                                replyid = -1;
+                                isreplying = false;
+                                setState(() {
+                                  
+                                });}
                                 else{await send_message(msg, "message");}
                                 temp_msg = "";
                                 setState(() {
@@ -510,7 +528,12 @@ bool isreplying = false ;
                   
                               if (msg != "") {
                               if(isreplying && replyid!=-1){
-                                await send_message("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg,"reply");}
+                                await send_message(msg,"reply");
+                                replyid = -1;
+                                isreplying = false;
+                                setState(() {
+                                  
+                                });}
                                 else{await send_message(msg, "message");}
                               }
                   
@@ -1357,7 +1380,7 @@ Future<void> gemini(String prompt) async {
   String res = "Error";
   for (String apiKey in api_keys.value) {
     final url = Uri.parse(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=$apiKey",
     );
 
     try {
