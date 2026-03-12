@@ -26,7 +26,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 bool Isdark = true;
 bool isSelecting = false;
 List selected_items = [];
-
+bool imagesent = true ;
 int replyid = -1;
 bool noti = false;
 late RealtimeChannel presenceChannel;
@@ -674,6 +674,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                 borderRadius: BorderRadiusGeometry.circular(10),
                                 child: Image.file(selectedImage!, height: 70),
                               ),
+                              imagesent?SizedBox.shrink():Positioned.fill(child: SizedBox(height: 90,child: Lottie.asset("assets/lotties/Loading_Animation_blue.json"))),
                               Positioned(
                                 right: -17,
                                 bottom: 40,
@@ -694,7 +695,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ),
               if (isreplying && replyid != -1)
                 Positioned(
-                  bottom: 100,
+                  bottom: 60,
                   left: 0,
                   right: 0,
                   // height: 50,
@@ -887,7 +888,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                 } else {
                                   await send_message(msg, "message");
                                 }
-                              }
+                              }else if (selectedImage != null) {
+                                    print("object");
+                                    await uploadImageBase64(
+                                      selectedImage!,
+                                      msg,
+                                    );
+                                  } 
 
                               temp_msg = "";
                               selectedImage = null;
@@ -923,7 +930,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             // color: Color(0xFF5BB9A8),
-            color: const Color.fromARGB(255, 4, 195, 176),
+            color: kTextHint,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
@@ -1073,7 +1080,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.delete,
+                      Icons.reply_rounded,
                       color: const Color.fromARGB(255, 255, 255, 255),
                     ),
                     SizedBox(width: 10),
@@ -1322,7 +1329,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.delete,
+                      Icons.reply_rounded,
                       color: const Color.fromARGB(255, 255, 255, 255),
                     ),
                     SizedBox(width: 10),
@@ -2039,12 +2046,17 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   //// upload image to database //////
   Future<void> uploadImageBase64(File imageFile, String msg) async {
+    imagesent = false;
+    setState(() {
+      
+    });
     final bytes = await imageFile.readAsBytes();
     final url = await chatApi.uploadImageBase64(base64Encode(bytes));
     print("\n");
     print("🚀url 📷${url}");
     print("\n");
     await send_message("${SECRET_MARKER}${url}cpn${msg}", "image");
+    imagesent =true;
     setState(() {});
   }
 
@@ -2087,7 +2099,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
               child: Row(
                 children: [
                   Icon(
-                    Icons.delete,
+                    Icons.reply_rounded,
                     color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                   SizedBox(width: 10),

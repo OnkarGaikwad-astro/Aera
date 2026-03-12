@@ -30,7 +30,7 @@ bool noti = false;
 late RealtimeChannel presenceChannel;
 bool isOnline = false;
 int replyid = -1;
-
+bool imagesent = true;
 class GroupChat extends StatefulWidget {
   final dynamic ID;
   const GroupChat({super.key, required this.ID});
@@ -669,7 +669,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                               ClipRRect(
                                 borderRadius: BorderRadiusGeometry.circular(10),
                                 child: Image.file(selectedImage!, height: 70),
-                              ),
+                              ),imagesent?SizedBox.shrink():Positioned.fill(child: SizedBox(height: 90,child: Lottie.asset("assets/lotties/Loading_Animation_blue.json"))),
                               Positioned(
                                 right: -17,
                                 bottom: 40,
@@ -887,6 +887,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                     setState(() {});
                                     print("object 1");
                                   } else if (selectedImage != null) {
+                                    print("object");
                                     await uploadImageBase64(
                                       selectedImage!,
                                       msg,
@@ -894,7 +895,13 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                   } else {
                                     await send_message(msg, "message");
                                   }
-                                }
+                                } else if (selectedImage != null) {
+                                    print("object");
+                                    await uploadImageBase64(
+                                      selectedImage!,
+                                      msg,
+                                    );
+                                  } 
 
                                 temp_msg = "";
                                 selectedImage = null;
@@ -981,7 +988,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.delete,
+                      Icons.reply_rounded,
                       color: const Color.fromARGB(255, 255, 255, 255),
                     ),
                     SizedBox(width: 10),
@@ -1351,7 +1358,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.delete,
+                      Icons.reply_rounded,
                       color: const Color.fromARGB(255, 255, 255, 255),
                     ),
                     SizedBox(width: 10),
@@ -2136,12 +2143,17 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
 
   //// upload image to database //////
   Future<void> uploadImageBase64(File imageFile, String msg) async {
+    imagesent  = false ;
+    setState(() {
+      
+    });
     final bytes = await imageFile.readAsBytes();
     final url = await chatApi.uploadImageBase64(base64Encode(bytes));
     print("\n");
     print("🚀url 📷${url}");
     print("\n");
     await send_message("${SECRET_MARKER}${url}cpn${msg}", "image");
+    imagesent = true;
     setState(() {});
   }
 
@@ -2184,7 +2196,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
               child: Row(
                 children: [
                   Icon(
-                    Icons.delete,
+                    Icons.reply,
                     color: const Color.fromARGB(255, 255, 255, 255),
                   ),
                   SizedBox(width: 10),

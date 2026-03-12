@@ -303,47 +303,47 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          // Row(
-                          //   children: [
-                          //     SizedBox(width: 4),
-                          //     SizedBox(
-                          //       width: 210,
-                          //       child: Text(
-                          //         overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              SizedBox(width: 4),
+                              SizedBox(
+                                width: 210,
+                                child: Text(
+                                  overflow: TextOverflow.ellipsis,
 
-                          //         all_contacts.value["contacts"][num]["last_message"]
-                          //                 .contains(SECRET_MARKER)
-                          //             ? " ◯ Image"
-                          //             : all_contacts.value["contacts"][num]["last_message"],
-                          //         style: GoogleFonts.exo2(
-                          //           fontSize: 13.5,
-                          //           color: const Color.fromARGB(
-                          //             255,
-                          //             198,
-                          //             196,
-                          //             196,
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ],
-                          // ),
+                                  all_contacts.value["contacts"][num]["last_message"]
+                                          .contains(SECRET_MARKER)
+                                      ? " ◯ Image"
+                                      : all_contacts.value["contacts"][num]["last_message"],
+                                  style: GoogleFonts.exo2(
+                                    fontSize: 13.5,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      198,
+                                      196,
+                                      196,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
-                    // Text("${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
-                    //   style: TextStyle(
-                    //     fontSize: 8,
-                    //     fontFamily: "times new roman",
-                    //     color: isdark
-                    //         ? Colors.grey
-                    //         : const Color.fromARGB(255, 72, 71, 71),
-                    //   ),
-                    // ),
-                    // SizedBox(width: 7),
-                    // contacts["contacts"][num]["msg_seen"] != "seen"
-                    //     ? Text("🚀", style: TextStyle(fontSize: 14))
-                    //     : SizedBox.shrink(),
+                    Text("${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontFamily: "times new roman",
+                        color: isdark
+                            ? Colors.grey
+                            : const Color.fromARGB(255, 72, 71, 71),
+                      ),
+                    ),
+                    SizedBox(width: 7),
+                    contacts["contacts"][num]["msg_seen"] != "seen"
+                        ? Text("🚀", style: TextStyle(fontSize: 14))
+                        : SizedBox.shrink(),
                   ],
                 ),
               ),

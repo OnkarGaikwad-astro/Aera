@@ -120,7 +120,6 @@ bool isreplying = false ;
 
   ///////   send message   ////
   Future<void> send_message(String msg,String type) async {
-    
     if (msg == "") return;
     otherUserTyping = true;
     gemini(msg);
@@ -133,7 +132,6 @@ bool isreplying = false ;
     print("🚀🚀🚀🚀 msg sent");
   }
   Future<void> send_reply_message(String msg,String type) async {
-    
     if (msg == "") return;
     otherUserTyping = true;
     gemini("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg);
@@ -398,7 +396,7 @@ bool isreplying = false ;
               ),
               if (isreplying && replyid != -1)
                 Positioned(
-                  bottom: 100,
+                  bottom: 60,
                   left: 0,
                   right: 0,
                   // height: 50,
@@ -528,7 +526,7 @@ bool isreplying = false ;
                   
                               if (msg != "") {
                               if(isreplying && replyid!=-1){
-                                await send_message(msg,"reply");
+                                await send_reply_message(msg,"reply");
                                 replyid = -1;
                                 isreplying = false;
                                 setState(() {
@@ -566,7 +564,7 @@ bool isreplying = false ;
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             // color: Color(0xFF5BB9A8),
-            color: const Color.fromARGB(255, 4, 195, 176),
+            color:kTextHint,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
@@ -1380,7 +1378,7 @@ Future<void> gemini(String prompt) async {
   String res = "Error";
   for (String apiKey in api_keys.value) {
     final url = Uri.parse(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent?key=$apiKey",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
     );
 
     try {
@@ -1389,7 +1387,7 @@ Future<void> gemini(String prompt) async {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "contents": [
-            {
+            {"role": "user",
               "parts": [
                 {
                   "text":
