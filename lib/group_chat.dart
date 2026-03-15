@@ -173,6 +173,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
   void initState() {
     noti = true;
     username();
+    chatApi.setOnline();
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     Future.microtask(() async {
@@ -538,9 +539,10 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                             children: [
                               Text(
                                 style: GoogleFonts.josefinSans(
+                                  fontWeight: FontWeight.w300,
                                   fontSize: 25,
                                   color: Isdark
-                                      ? const Color.fromARGB(177, 255, 255, 255)
+                                      ? const Color.fromARGB(223, 255, 255, 255)
                                       : Colors.black,
                                 ),
                                 contacts["contacts"][contacts["contacts"]

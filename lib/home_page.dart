@@ -22,10 +22,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lottie/lottie.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 Color chat_color = const Color.fromARGB(133, 16, 37, 79);
 bool isdark = true;
 late String your_name;
+late RealtimeChannel presenceChannel;
+Map<String, bool> onlineUsers = {};
 
 class MyHomePage extends StatefulWidget {
   final VoidCallback toggleTheme;
@@ -61,6 +64,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //////   chatlist widget  //////
   Widget chat_list(int num) {
+    bool isOnline =
+        onlineUsers[all_contacts.value["contacts"][num]["id"]] ?? false;
     return Center(
       child: ValueListenableBuilder(
         valueListenable: all_contacts,
@@ -256,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 fit: BoxFit.cover,
                                 fadeInDuration: Duration.zero,
                                 fadeOutDuration: Duration.zero,
-
+                          
                                 placeholder: (context, url) => const Center(
                                   child: SizedBox(
                                     height: 20,
@@ -311,10 +316,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                 child: Text(
                                   overflow: TextOverflow.ellipsis,
 
-                                  all_contacts.value["contacts"][num]["last_message"]
+                                  all_contacts
+                                          .value["contacts"][num]["last_message"]
                                           .contains(SECRET_MARKER)
                                       ? " ◯ Image"
-                                      : all_contacts.value["contacts"][num]["last_message"],
+                                      : all_contacts
+                                            .value["contacts"][num]["last_message"],
                                   style: GoogleFonts.exo2(
                                     fontSize: 13.5,
                                     color: const Color.fromARGB(
@@ -331,16 +338,41 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       ),
                     ),
-                    Text("${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
-                      style: TextStyle(
-                        fontSize: 8,
-                        fontFamily: "times new roman",
-                        color: isdark
-                            ? Colors.grey
-                            : const Color.fromARGB(255, 72, 71, 71),
-                      ),
-                    ),
-                    SizedBox(width: 7),
+                    // Text(
+                    //   "${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    //   style: TextStyle(
+                    //     fontSize: 8,
+                    //     fontFamily: "times new roman",
+                    //     color: isdark
+                    //         ? Colors.grey
+                    //         : const Color.fromARGB(255, 72, 71, 71),
+                    //   ),
+                    // ),
+                    SizedBox(width: 60,),
+                    isOnline
+                                  ? Positioned(
+                                      right: -1,
+                                      top: -2,
+                                      child: Icon(
+                                        shadows: [
+                                          Shadow(
+                                            blurRadius: 20,
+                                            color: Colors.black,
+                                          ),
+                                        ],
+                                        size: 20,
+                                        Icons.circle_sharp,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          0,
+                                          255,
+                                          106,
+                                        ),
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                    SizedBox(width: 25),
                     contacts["contacts"][num]["msg_seen"] != "seen"
                         ? Text("🚀", style: TextStyle(fontSize: 14))
                         : SizedBox.shrink(),
@@ -372,15 +404,49 @@ class _MyHomePageState extends State<MyHomePage> {
     print("played");
   }
 
+
+
+
+
   @override
   void initState() {
     super.initState();
     chatApi.fetch_api();
+
     chatApi.savefcm();
-    if(Hive.box("aurex_api").get("keys")!=null){
+    if (Hive.box("aurex_api").get("keys") != null) {
       api_keys.value = Hive.box("aurex_api").get("keys");
     }
+    final contacts = all_contacts.value["contacts"] as List;
 
+    final ids = contacts
+        .map((c) => c["id"])
+        .where((id) => id != null && id.toString().isNotEmpty)
+        .toList();
+
+    presenceChannel = Supabase.instance.client
+        .channel('presence_subset')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'user_presence',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.inFilter,
+            column: 'user_id',
+            value: ids,
+          ),
+          callback: (payload) {
+            final data = payload.newRecord;
+            if (data == null) return;
+
+            final userId = data['user_id'];
+
+            setState(() {
+              onlineUsers[userId] = data['is_online'] == true;
+            });
+          },
+        )
+        .subscribe();
     isdark = Hive.box("isdark").get("isDark") ?? true;
     Hive.box("isdark").put("isDark", isdark);
     Future.microtask(() {
@@ -397,67 +463,93 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void dispose() {
+    presenceChannel.unsubscribe();
+    chatApi.setOffline();
+    super.dispose();
+  }
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      chatApi.setOnline();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.inactive) {
+      chatApi.setOffline();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       drawerEdgeDragWidth: 200,
 
-
       drawer: SafeArea(
         child: Drawer(
           width: 300,
           child: Column(
-        
-            children: [SizedBox(
-              height: 20,
-            ),
+            children: [
+              SizedBox(height: 20),
               ClipRRect(
                 borderRadius: BorderRadiusGeometry.circular(30),
                 child: CachedNetworkImage(
-                        filterQuality: FilterQuality.high,
-                        imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              padding: EdgeInsets.all(5),
-                              color: Colors.black,
-                              constraints: BoxConstraints(
-                                minWidth: 20,
-                                minHeight: 20,
-                              ),
-                            ),
-                          ),
+                  filterQuality: FilterQuality.high,
+                  imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(
+                    child: SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        padding: EdgeInsets.all(5),
+                        color: Colors.black,
+                        constraints: BoxConstraints(
+                          minWidth: 20,
+                          minHeight: 20,
                         ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.broken_image),
-                        fadeInDuration: Duration.zero,
-                        fadeOutDuration: Duration.zero,
                       ),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.broken_image),
+                  fadeInDuration: Duration.zero,
+                  fadeOutDuration: Duration.zero,
+                ),
               ),
-              
-              Text(FirebaseAuth.instance.currentUser!.displayName ?? "astro"),
-              ElevatedButton(onPressed: () async{
-                await FirebaseAuth.instance.currentUser!.updateDisplayName("Onkar");
-                print("Name changed");
-                print(FirebaseAuth.instance.currentUser!.displayName);
-                setState(() {
-                  
-                });
-              }, child: Text("Change name")),
 
-              ElevatedButton(onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return Lottiepage();
-                },));
-              }, child: Text("lottie")),
+              Text(FirebaseAuth.instance.currentUser!.displayName ?? "astro"),
+              ElevatedButton(
+                onPressed: () async {
+                  await FirebaseAuth.instance.currentUser!.updateDisplayName(
+                    "Onkar",
+                  );
+                  print("Name changed");
+                  print(FirebaseAuth.instance.currentUser!.displayName);
+                  setState(() {});
+                },
+                child: Text("Change name"),
+              ),
+
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Lottiepage();
+                      },
+                    ),
+                  );
+                },
+                child: Text("lottie"),
+              ),
 
               ElevatedButton(
                 onPressed: () async {
                   await signOut();
+                  chatApi.setOffline();
                   if (FirebaseAuth.instance.currentUser == null) {
                     Navigator.pushReplacement(
                       context,
@@ -470,13 +562,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 child: Text("Logout !"),
               ),
-        
             ],
-        
           ),
         ),
       ),
-
 
       floatingActionButton: FloatingActionButton(
         elevation: 30,
@@ -579,10 +668,10 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
         title: Text(
           "Aera",
-          style: TextStyle(
-            fontFamily: "times new roman",
+          style: GoogleFonts.moiraiOne(
             letterSpacing: 17,
             fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),
@@ -594,17 +683,24 @@ class _MyHomePageState extends State<MyHomePage> {
             elevation: 10,
             color: kAccentVariant,
             onRefresh: _refresh,
-            child:contacts["contact_count"] == 0
+            child: contacts["contact_count"] == 0
                 ? ListView(
                     physics: AlwaysScrollableScrollPhysics(),
                     children: [Center(child: SizedBox.shrink())],
                   )
-                :contacts["contact_count"] == null ?ListView(
+                : contacts["contact_count"] == null
+                ? ListView(
                     physics: AlwaysScrollableScrollPhysics(),
-                    children: [SizedBox(
-                      height: 300,
-                    ),Center(child:Lottie.asset("assets/lotties/Sandy_Loading.json") )],
-                  ) :ListView.builder(
+                    children: [
+                      SizedBox(height: 300),
+                      Center(
+                        child: Lottie.asset(
+                          "assets/lotties/Sandy_Loading.json",
+                        ),
+                      ),
+                    ],
+                  )
+                : ListView.builder(
                     physics: AlwaysScrollableScrollPhysics(),
                     itemCount: contacts["contact_count"],
                     itemBuilder: (context, index) {

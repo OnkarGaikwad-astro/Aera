@@ -131,32 +131,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     // print(response);
   }
 
-  void listenPresence(String otherUser) {
-    presenceChannel = Supabase.instance.client
-        .channel('presence:$otherUser')
-        .onPostgresChanges(
-          event: PostgresChangeEvent.all,
-          schema: 'public',
-          table: 'user_presence',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'user_id',
-            value: otherUser,
-          ),
-          callback: (payload) {
-            final data = payload.newRecord;
-            if (data == null) return;
-
-            setState(() {
-              isOnline = data['is_online'] == true;
-            });
-
-            print('🟢 PRESENCE UPDATE → $isOnline');
-          },
-        )
-        .subscribe();
-  }
-
   ////////  chat_list  ///////
   Future<void> all_chats_list() async {
     final email = FirebaseAuth.instance.currentUser?.email;
@@ -174,19 +148,49 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     return pair.join("__");
   }
 
+void userpre()async{
+isOnline = await chatApi.getuserpresence(widget.ID);
+print("\n\nuser presence detected \n\n");
+}
   /// init state  ////
   @override
   void initState() {
+    userpre();
     noti = true;
     username();
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    Future.microtask(() async {
-      listenPresence(widget.ID);
-    });
     mark_msg_seen(widget.ID);
     final myUserId = FirebaseAuth.instance.currentUser!.email!;
     chatId = buildChatId(myUserId, widget.ID);
+
+
+    /////  user presence ////
+    presenceChannel = Supabase.instance.client
+        .channel('presence:${widget.ID}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'user_presence',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'user_id',
+            value: widget.ID,
+          ),
+          callback: (payload) {
+
+            print('🟢 PRESENCE UPDATE → $isOnline');
+            final data = payload.newRecord;
+            if (data == null) return;
+
+            setState(() {
+              isOnline = data['is_online'] == true;
+            });
+
+            print('🟢 PRESENCE UPDATE → $isOnline');
+          },
+        )
+        .subscribe();
 
     //////  typing indicator  //////
     typingChannel = Supabase.instance.client
@@ -275,7 +279,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   // ///  refresh msgs when app resumes from home /////
 
-  @override
+
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       chatApi.setOnline();
@@ -286,8 +290,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     }
   }
 
-  /////////
-
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -486,83 +489,75 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     },
                     child: Row(
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: Hero(
-                            tag:
-                                contacts["contacts"][contacts["contacts"]
-                                    .indexWhere(
-                                      (e) => e['id'] == widget.ID,
-                                    )]["chat_id"],
-                            child: Container(
-                              height: 40,
-                              width: 40,
-                              child: ClipRRect(
-                                borderRadius: BorderRadiusGeometry.circular(10),
-                                child: RepaintBoundary(
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        contacts["contacts"][contacts["contacts"]
-                                            .indexWhere(
-                                              (e) => e['id'] == widget.ID,
-                                            )]["profile_pic"],
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) => const Center(
-                                      child: SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          padding: EdgeInsets.all(5),
-                                          color: Colors.black,
-                                          constraints: BoxConstraints(
-                                            minWidth: 20,
-                                            minHeight: 20,
+                        Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Hero(
+                                tag:
+                                    contacts["contacts"][contacts["contacts"]
+                                        .indexWhere(
+                                          (e) => e['id'] == widget.ID,
+                                        )]["chat_id"],
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadiusGeometry.circular(10),
+                                    child: RepaintBoundary(
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            contacts["contacts"][contacts["contacts"]
+                                                .indexWhere(
+                                                  (e) => e['id'] == widget.ID,
+                                                )]["profile_pic"],
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => const Center(
+                                          child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              padding: EdgeInsets.all(5),
+                                              color: Colors.black,
+                                              constraints: BoxConstraints(
+                                                minWidth: 20,
+                                                minHeight: 20,
+                                              ),
+                                            ),
                                           ),
                                         ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.broken_image),
+                                        memCacheWidth: 400,
+                                        fadeInDuration: Duration.zero,
+                                        fadeOutDuration: Duration.zero,
                                       ),
                                     ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.broken_image),
-                                    memCacheWidth: 400,
-                                    fadeInDuration: Duration.zero,
-                                    fadeOutDuration: Duration.zero,
+                                    // child: Image.network(contacts["contacts"][num]["profile_pic"]),
                                   ),
                                 ),
-                                // child: Image.network(contacts["contacts"][num]["profile_pic"]),
                               ),
                             ),
-                          ),
+                            isOnline?Positioned(right: -1,top: -2,child: Icon(shadows: [Shadow(blurRadius: 20,color: Colors.black)],size: 20,Icons.circle,color: const Color.fromARGB(255, 0, 255, 106),fontWeight: FontWeight.bold,)):SizedBox.shrink()
+                          ],
                         ),
-                        SizedBox(width: 10),
+                        SizedBox(width: 20),
                         SizedBox(
-                          width: 210,
-                          child: Column(
-                            children: [
-                              Text(
-                                style: GoogleFonts.josefinSans(
-                                  fontSize: 25,
-                                  color: Isdark
-                                      ? const Color.fromARGB(177, 255, 255, 255)
-                                      : Colors.black,
-                                ),
-                                contacts["contacts"][contacts["contacts"]
-                                    .indexWhere(
-                                      (e) => e['id'] == widget.ID,
-                                    )]["name"],
-                                softWrap: true,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              isOnline
-                                  ? Text(
-                                      'Online',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.green,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    )
-                                  : const SizedBox.shrink(),
-                            ],
+                          width: 200,
+                          child: Text(
+                            style: GoogleFonts.josefinSans(
+                              fontWeight: FontWeight.w300,
+                              fontSize: 25,
+                              color: Isdark
+                                  ? const Color.fromARGB(255, 255, 255, 255)
+                                  : Colors.black,
+                            ),
+                            contacts["contacts"][contacts["contacts"]
+                                .indexWhere(
+                                  (e) => e['id'] == widget.ID,
+                                )]["name"],
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],

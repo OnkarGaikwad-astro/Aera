@@ -147,7 +147,7 @@ Future<void> fetch_api() async {
   /////  user status /////
 
   Future<void> setOnline() async {
-    final user = FirebaseAuth.instance.currentUser!.email!;
+    final user = await FirebaseAuth.instance.currentUser!.email!;
     await Supabase.instance.client.from('user_presence').upsert({
       'user_id': user,
       'is_online': true,
@@ -155,8 +155,15 @@ Future<void> fetch_api() async {
     });
   }
 
+
+  Future<bool> getuserpresence(String id) async {
+    final status = await Supabase.instance.client.from('user_presence').select(
+      'is_online').eq("user_id", id).maybeSingle();
+    return status?["is_online"]??false;
+  }
+
   Future<void> setOffline() async {
-    final user = FirebaseAuth.instance.currentUser!.email!;
+    final user = await FirebaseAuth.instance.currentUser!.email!;
     await Supabase.instance.client
         .from('user_presence')
         .update({

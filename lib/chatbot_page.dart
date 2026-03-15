@@ -121,9 +121,10 @@ bool isreplying = false ;
   ///////   send message   ////
   Future<void> send_message(String msg,String type) async {
     if (msg == "") return;
-    otherUserTyping = true;
+    
     gemini(msg);
     final email = await FirebaseAuth.instance.currentUser?.email;
+    otherUserTyping = true;
     await chatApi.addMsgforchatbot(email!, "chatbot",msg,type,your_name);
     
     await all_chats_list();
@@ -227,14 +228,24 @@ bool isreplying = false ;
   // ///  refresh msgs when app resumes from home /////
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-    } else if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached ||
-        state == AppLifecycleState.inactive) {}
+  void dispose() {
+    chatApi.setOffline();
+    super.dispose();
   }
 
-  /////////
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      chatApi.setOnline();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached ||
+        state == AppLifecycleState.inactive) {
+      chatApi.setOffline();
+    }
+  }
+
+
+  @override
 
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -301,10 +312,12 @@ bool isreplying = false ;
                         child: Column(
                           children: [
                             Text(
-                              style: GoogleFonts.josefinSans(
+                              style: GoogleFonts.moiraiOne(
                                 fontSize: 25,
+                                letterSpacing: 5,
+                                fontWeight: FontWeight.w900,
                                 color: Isdark
-                                    ? const Color.fromARGB(188, 255, 255, 255)
+                                    ? const Color.fromARGB(210, 226, 255, 252)
                                     : Colors.black,
                               ),
                               "Aurex !",
