@@ -245,7 +245,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     all_chats_list();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       last_seen();
-      await all_chats_list();
+      // await all_chats_list();
       setState(() {});
       print("🔔 message received");
     });

@@ -255,7 +255,7 @@ print("\n\n user presence detected \n\n");
     all_chats_list();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       last_seen();
-      await all_chats_list();
+      // await all_chats_list();
       setState(() {});
       print("🔔 message received");
     });

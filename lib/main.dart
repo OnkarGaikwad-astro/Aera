@@ -137,7 +137,7 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.instance.requestPermission();
     FirebaseMessaging.instance.getToken().then((token) {});
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      user_contacts();
+      // user_contacts();
       all_chats_list();
       print("🔔 Foreground message received");
     });
@@ -145,12 +145,10 @@ class _MyAppState extends State<MyApp> {
 
   //////   message database initialize /////
   Future<void> all_chats_list() async {
-    print("object");
     final email = FirebaseAuth.instance.currentUser?.email;
     all_msg_list.value = await chatApi.getAllChatsFormatted(email!);
     final box = Hive.box('cache');
     box.put('all_msg_list', all_msg_list.value);
-    // print("🚀🚀🚀 : $all_msg_list.value");
     setState(() {});
   }
 

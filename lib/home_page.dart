@@ -28,6 +28,7 @@ Color chat_color = const Color.fromARGB(133, 16, 37, 79);
 bool isdark = true;
 late String your_name;
 late RealtimeChannel presenceChannel;
+late RealtimeChannel ContactChannel;
 Map<String, bool> onlineUsers = {};
 
 class MyHomePage extends StatefulWidget {
@@ -317,11 +318,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   overflow: TextOverflow.ellipsis,
 
                                   all_contacts
-                                          .value["contacts"][num]["last_message"]
+                                          .value["contacts"][num]["last_msg"]
                                           .contains(SECRET_MARKER)
                                       ? " ◯ Image"
                                       : all_contacts
-                                            .value["contacts"][num]["last_message"],
+                                            .value["contacts"][num]["last_msg"],
                                   style: GoogleFonts.exo2(
                                     fontSize: 13.5,
                                     color: const Color.fromARGB(
@@ -433,7 +434,45 @@ Future <void>userpres()async{
           },
         )
         .subscribe();
+
+    final chatids = contacts
+        .map((c) => c["chat_id"])
+        .where((id) => id != null && id.toString().isNotEmpty)
+        .toList();
+
+        ContactChannel = Supabase.instance.client
+        .channel('last_message')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'user_contacts',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.inFilter,
+            column: 'chat_id',
+            value: chatids,
+          ),
+          callback: (payload) async{
+            print("🚀🚀🚀🚀🚀🚀🚀 ");
+            final data = payload.newRecord;
+            await user_contacts();
+            all_chats_list();
+            setState(() {
+            });
+          },
+        )
+        .subscribe(); 
 }
+
+
+  Future<void> all_chats_list() async {
+    final email = FirebaseAuth.instance.currentUser?.email;
+    all_msg_list.value = await chatApi.getAllChatsFormatted(email!);
+    final box = Hive.box('cache');
+    box.put('all_msg_list', all_msg_list.value);
+    setState(() {});
+  }
+
+
 
   @override
   void initState() {
@@ -443,11 +482,7 @@ Future <void>userpres()async{
     chatApi.savefcm();
     if (Hive.box("aurex_api").get("keys") != null) {
       api_keys.value = Hive.box("aurex_api").get("keys");
-    }
-
-
-
-   
+    }  
 
     isdark = Hive.box("isdark").get("isDark") ?? true;
     Hive.box("isdark").put("isDark", isdark);
@@ -461,8 +496,9 @@ Future <void>userpres()async{
         );
       }
     });
-    
   }
+
+
 
   @override
   void dispose() {
@@ -470,6 +506,8 @@ Future <void>userpres()async{
     chatApi.setOffline();
     super.dispose();
   }
+
+
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -480,6 +518,7 @@ Future <void>userpres()async{
       chatApi.setOffline();
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -600,15 +639,16 @@ Future <void>userpres()async{
           InkWell(
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
-              HapticFeedback.heavyImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ChatbotPage();
-                  },
-                ),
-              );
+              // HapticFeedback.heavyImpact();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) {
+              //       return ChatbotPage();
+              //     },
+              //   ),
+              // );
+              print(all_contacts.value);
               /////// check  ///////
             },
             child: CircleAvatar(

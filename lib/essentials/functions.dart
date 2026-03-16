@@ -308,9 +308,10 @@ Future<void> fetch_api() async {
     final manualRows = await _db
         .from('user_contacts')
         .select(
-          'user_1_id,user_2_id,chat_id,name,members,profile_pic,last_msg,group',
+          'user_1_id,user_2_id,chat_id,name,members,profile_pic,last_msg,group,last_msg_time',
         )
-        .or("user_1_id.eq.$userId,user_2_id.eq.$userId,members.cs.{${userId}}");
+        .or("user_1_id.eq.$userId,user_2_id.eq.$userId,members.cs.{${userId}}")
+        .order("last_msg_time",ascending: false);
 
     final contactlst = manualRows.map<Map<String, dynamic>>((row) {
       final otherUserId = row['user_1_id'] == userId
@@ -324,14 +325,14 @@ Future<void> fetch_api() async {
         "profile_pic": row["profile_pic"],
         "last_msg": row["last_msg"],
         "group": row["group"],
+        "last_msg_time":row["last_msg_time"]
       };
     }).toList();
 
     final msgRows = await _db
         .from('messages')
-        .select('sender_id,receiver_id,msg,msg_seen,timestamp')
-        .or('sender_id.eq.$userId,receiver_id.eq.$userId')
-        .order('timestamp', ascending: false);
+        .select('sender_id,receiver_id,msg_seen')
+        .or('sender_id.eq.$userId,receiver_id.eq.$userId');
 
     final Map<String, Map<String, dynamic>> contactMap = {};
 
@@ -342,9 +343,6 @@ Future<void> fetch_api() async {
       if (!contactMap.containsKey(other)) {
         contactMap[other] = {
           'id': other,
-          'last_message': msg['msg'],
-          'last_message_time': msg['timestamp'],
-          'last_message_sender_id': sender,
           'msg_seen': sender == userId ? 'seen' : (msg['msg_seen'] ?? ''),
         };
       }
@@ -355,15 +353,13 @@ Future<void> fetch_api() async {
         id["id"],
         () => {
           'id': id["id"],
-          'last_message': '',
-          'last_message_time': '',
-          'last_message_sender_id': '',
           'msg_seen': '',
           "name": id["name"],
           "chat_id": id["chat_id"],
           "members": id["members"],
           "profile_pic": id["profile_pic"],
           "last_msg": id["last_msg"],
+          "last_msg_time": id["last_msg_time"],
           "group": id["group"],
         },
       );
@@ -373,7 +369,6 @@ Future<void> fetch_api() async {
       return {'contact_count': 0, 'contacts': []};
     }
 
-    final ids = contactMap.keys.join(',');
     final userRows = await _db
         .from('users')
         .select('user_id,name,profile_pic,bio,fcm_token')
@@ -395,15 +390,19 @@ Future<void> fetch_api() async {
             : (userData?["profile_pic"] ?? ''),
         'bio': u["group"] ? (u['bio'] ?? '') : (userData?['bio'] ?? ''),
         'fcm_token': u["group"] ? null : userData?['fcm_token'],
-        'last_message': info['last_message'] ?? null,
-        'last_message_time': info['last_message_time'] ?? null,
-        'last_message_sender_id': info['last_message_sender_id'] ?? "",
         "chat_id": u["chat_id"],
         'msg_seen': info['msg_seen'],
         "members":u["members"],
-        "group":u["group"]
+        "group":u["group"],
+        "last_msg":u["last_msg"] ?? "",
+        "last_msg_time":u["last_msg_time"] ?? ""
       });
     }
+    contacts.sort((a, b) {
+  final t1 = DateTime.tryParse(a['last_msg_time'] ?? '') ?? DateTime(1970);
+  final t2 = DateTime.tryParse(b['last_msg_time'] ?? '') ?? DateTime(1970);
+  return t2.compareTo(t1); // newest first
+});
     return {'contact_count': contacts.length, 'contacts': contacts};
   }
 
