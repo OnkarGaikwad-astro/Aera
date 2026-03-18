@@ -144,14 +144,16 @@ class SupabaseChatApi {
   /////  mark msg seen  ////
 
   Future<void> markLastMsgSeen(String chatId) async {
-    print("start");
+    print("🚀🚀🚀 start");
+    print(chatId);
     final user = await FirebaseAuth.instance.currentUser!.email!;
     final data = await _db
         .from('user_contacts')
         .select('msg_seen')
         .eq('chat_id', chatId)
-        .single();
-    Map<String, dynamic> members = Map<String, dynamic>.from(data['msg_seen']);
+        .maybeSingle();
+        print(data);
+    Map<String, dynamic> members = Map<String, dynamic>.from(data!['msg_seen']);
     members[user] = true;
     await Supabase.instance.client
         .from('user_contacts')
@@ -644,7 +646,6 @@ class SupabaseChatApi {
           'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
         )
         .order('timestamp', ascending: true);
-    print("rows:$rows");
     final Map<String, List<Map<String, dynamic>>> chatMap = {};
 
     for (final m in rows) {

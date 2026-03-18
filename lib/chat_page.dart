@@ -2340,7 +2340,7 @@ print("\n\n user presence detected \n\n");
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ◯",
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 10,
                         color: Colors.white,

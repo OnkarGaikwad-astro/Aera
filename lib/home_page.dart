@@ -13,6 +13,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 // import 'package:Aera/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -64,6 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //////   chatlist widget  //////
   Widget chat_list(int num) {
+    final user = FirebaseAuth.instance.currentUser!.email;
     bool isOnline =
         onlineUsers[all_contacts.value["contacts"][num]["id"]] ?? false;
     return Center(
@@ -350,8 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     //   ),
                     // ),
                     SizedBox(width: 10,),
-                    isOnline
-                                  ? Icon(
+                    isOnline && all_contacts.value["contacts"][num]["id"]!=user? Icon(
                                     shadows: [
                                       Shadow(
                                         blurRadius: 20,
@@ -371,7 +372,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   : SizedBox.shrink(),
                     SizedBox(width: 25),
                     !contacts["contacts"][num]["msg_seen"]
-                        ? Text("🚀", style: TextStyle(fontSize: 14))
+                        ? Text("🚀", style: TextStyle(fontSize: 15))
+                        // ?Icon(Icons.mark_email_unread,color: Color.fromARGB(
+                        //               255,
+                        //               0,
+                        //               255,
+                        //               106,
+                        //             ),)
                         : SizedBox.shrink(),
                   ],
                 ),

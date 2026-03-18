@@ -168,10 +168,15 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     setState(() {});
   }
 
+Future<void>Markmsgseen()async{
+  print("started marking msg seen 🚀 ");
+  await chatApi.markLastMsgSeen(widget.ID);
+  print("Ended mark msg sended🚀 ");
+}
   /// init state  ////
   @override
   void initState() {
-    chatApi.markLastMsgSeen(widget.ID);
+    Markmsgseen();
     noti = true;
     username();
     chatApi.setOnline();
@@ -234,7 +239,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
             if (payload.eventType == PostgresChangeEvent.delete) return;
             if (newMsg["sender_id"] != myUserId) {
               receivedsound();
-              chatApi.markLastMsgSeen(widget.ID);
+              Markmsgseen();
             }
           },
         )
