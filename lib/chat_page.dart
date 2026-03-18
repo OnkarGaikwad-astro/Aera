@@ -1036,6 +1036,8 @@ print("\n\n user presence detected \n\n");
   //////  sended reply widget  //////
 
   Widget sendedreply(no) {
+    bool ismsg = false ;  
+    ismsg = isseenmsg(no);
     final msg = chat["messages"][no]["msg"].toString().split("rpy");
     return Align(
       alignment: AlignmentGeometry.centerRight,
@@ -1257,7 +1259,7 @@ print("\n\n user presence detected \n\n");
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.left,
-                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} " +  (!ismsg?"⬤":"◯"),
                         style: GoogleFonts.spaceGrotesk(
                           fontSize: 10,
                           color: Colors.white,
@@ -1544,6 +1546,8 @@ print("\n\n user presence detected \n\n");
   }
 
   Widget sent_image_base(int no) {
+    bool ismsg = false ;  
+    ismsg = isseenmsg(no);
     bool imageloaded = false;
     return GestureDetector(
       onTap: () {
@@ -1743,7 +1747,7 @@ print("\n\n user presence detected \n\n");
                   padding: const EdgeInsets.only(right: 8.0, bottom: 4),
                   child: Text(
                     textAlign: TextAlign.start,
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} " + (!ismsg?"⬤":"◯"),
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 10,
                       color: Colors.white,
