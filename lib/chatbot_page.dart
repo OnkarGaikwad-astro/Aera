@@ -324,16 +324,7 @@ bool isreplying = false ;
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            isOnline
-                                ? Text(
-                                    'Online',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.green,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
+                           
                           ],
                         ),
                       ),

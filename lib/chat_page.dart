@@ -2048,6 +2048,30 @@ print("\n\n user presence detected \n\n");
     setState(() {});
   }
 
+
+bool isseenmsg(int no){
+  bool seen = false;
+  print("no:$no");
+    final raw = chat["messages"][no]["msg_seen"];
+    Map<String, dynamic> members;
+
+    if (raw is String) {
+      members = jsonDecode(raw);
+    } else {
+      members = Map<String, dynamic>.from(raw);
+     
+    }
+    print("members : $members");
+    if (members[widget.ID] == true ) {
+      seen = true;
+    }else{
+      seen = false ;
+    }
+    print("seen : $seen");
+  return seen;
+}
+
+
   ///////  recieved message widget ///////
   Widget recieved_msg(int no) {
     return GestureDetector(
@@ -2199,6 +2223,8 @@ print("\n\n user presence detected \n\n");
 
   //////// sent message widget  ///////
   Widget sended_msg(int no) {
+    bool ismsg = false ;  
+    ismsg = isseenmsg(no);
     return Transform.translate(
       offset: Offset(0, 0),
       child: GestureDetector(
@@ -2207,7 +2233,7 @@ print("\n\n user presence detected \n\n");
           setState(() {
             // details.delta.dx
             // left = left + 1;
-            // // print(details.localPosition.dx);
+            // // print(details.localPosition.dx);R
             // print(left);
           });
           setState(() {});
@@ -2340,7 +2366,7 @@ print("\n\n user presence detected \n\n");
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ◯",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]}  " + (!ismsg?"⬤":"◯"),
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 10,
                         color: Colors.white,

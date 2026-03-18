@@ -152,13 +152,28 @@ class SupabaseChatApi {
         .select('msg_seen')
         .eq('chat_id', chatId)
         .maybeSingle();
-        print(data);
-    Map<String, dynamic> members = Map<String, dynamic>.from(data!['msg_seen']);
+
+    final raw = data!['msg_seen'];
+
+    Map<String, dynamic> members;
+
+    if (raw is String) {
+      members = jsonDecode(raw);
+    } else {
+      members = Map<String, dynamic>.from(raw);
+    }
     members[user] = true;
     await Supabase.instance.client
         .from('user_contacts')
         .update({"msg_seen": jsonEncode(members)})
         .eq("chat_id", chatId);
+
+    await Supabase.instance.client
+        .from('messages')
+        .update({"msg_seen": jsonEncode(members)})
+        .eq("chat_id", chatId);
+
+        
     print("end");
   }
 
@@ -326,8 +341,6 @@ class SupabaseChatApi {
         .order("last_msg_time", ascending: false);
 
     final contactlst = manualRows.map<Map<String, dynamic>>((row) {
-
-
       Map<String, dynamic> seenMap = {};
       final rawSeen = row["msg_seen"];
       if (rawSeen is Map) {
@@ -640,7 +653,7 @@ class SupabaseChatApi {
     final rows = await _db
         .from('messages')
         .select(
-          'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type',
+          'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen',
         )
         .or(
           'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
@@ -665,6 +678,7 @@ class SupabaseChatApi {
         "chat_id": m["chat_id"],
         'user_sent': sender == userId ? 'yes' : 'no',
         "type": m["type"],
+        "msg_seen" :m["msg_seen"]
       });
     }
     final List<Map<String, dynamic>> chats = [];
