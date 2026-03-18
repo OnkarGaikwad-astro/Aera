@@ -170,7 +170,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
 
 Future<void>Markmsgseen()async{
   print("started marking msg seen 🚀 ");
-  await chatApi.markLastMsgSeen(widget.ID);
+  // await chatApi.markLastMsgSeen(widget.ID);
   print("Ended mark msg sended🚀 ");
 }
   /// init state  ////

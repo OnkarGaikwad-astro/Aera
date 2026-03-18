@@ -163,7 +163,7 @@ print("\n\n user presence detected \n\n");
     WidgetsBinding.instance.addObserver(this);
     final myUserId = FirebaseAuth.instance.currentUser!.email!;
     chatId = buildChatId(myUserId, widget.ID);
-    chatApi.markLastMsgSeen(chatId);
+    // chatApi.markLastMsgSeen(chatId);
 
     /////  user presence ////
     presenceChannel = Supabase.instance.client
@@ -233,7 +233,7 @@ print("\n\n user presence detected \n\n");
             print("🚀🚀🚀🚀🚀🚀🚀 NEW MESSAGE REALTIME");
             final newMsg = payload.newRecord;
             print("new msg $newMsg");
-
+            print(payload.schema);
             setState(() {
               all_chats_list();
             });
@@ -241,8 +241,8 @@ print("\n\n user presence detected \n\n");
             if (newMsg == null) return;
             if (payload.eventType == PostgresChangeEvent.delete) return;
             if (newMsg["sender_id"] != myUserId) {
-              receivedsound();
-              chatApi.markLastMsgSeen(chatId);
+              // receivedsound();
+              // chatApi.markLastMsgSeen(chatId);
             }
           },
         )
@@ -2055,29 +2055,26 @@ print("\n\n user presence detected \n\n");
 
 bool isseenmsg(int no){
   bool seen = false;
-  print("no:$no");
     final raw = chat["messages"][no]["msg_seen"];
     Map<String, dynamic> members;
-
     if (raw is String) {
       members = jsonDecode(raw);
     } else {
       members = Map<String, dynamic>.from(raw);
      
     }
-    print("members : $members");
     if (members[widget.ID] == true ) {
       seen = true;
     }else{
       seen = false ;
     }
-    print("seen : $seen");
   return seen;
 }
 
 
   ///////  recieved message widget ///////
   Widget recieved_msg(int no) {
+    chatApi.markMsgSeen(chatId,chat["messages"][no]["conversation_id"],chat["messages"][no]["msg_seen"]);
     return GestureDetector(
       onLongPressStart: (details) {
         HapticFeedback.selectionClick();

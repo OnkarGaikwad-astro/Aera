@@ -143,7 +143,7 @@ class SupabaseChatApi {
 
   /////  mark msg seen  ////
 
-  Future<void> markLastMsgSeen(String chatId) async {
+  Future<void> markLastMsgSeen(String chatId,int no) async {
     print("🚀🚀🚀 start");
     print(chatId);
     final user = await FirebaseAuth.instance.currentUser!.email!;
@@ -162,6 +162,7 @@ class SupabaseChatApi {
     } else {
       members = Map<String, dynamic>.from(raw);
     }
+    if(members[user] == false){
     members[user] = true;
     await Supabase.instance.client
         .from('user_contacts')
@@ -172,8 +173,32 @@ class SupabaseChatApi {
         .from('messages')
         .update({"msg_seen": jsonEncode(members)})
         .eq("chat_id", chatId);
+    }
 
-        
+    print("end");
+  }
+
+  Future<void> markMsgSeen(String chatId,int convo_id,final raw) async {
+    print("🚀🚀🚀 start");
+    print(chatId);
+    final user = await FirebaseAuth.instance.currentUser!.email!;
+    Map<String, dynamic> members;
+
+    if (raw is String) {
+      members = jsonDecode(raw);
+    } else {
+      members = Map<String, dynamic>.from(raw);
+    }
+    if(members[user] == false){
+      print(members);
+    members[user] = true;
+    await Supabase.instance.client
+        .from('messages')
+        .update({"msg_seen": jsonEncode(members)})
+        .or(
+          'and(chat_id.eq.$chatId,conversation_id.eq.$convo_id)',
+        );
+    }
     print("end");
   }
 

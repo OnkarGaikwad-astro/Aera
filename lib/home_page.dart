@@ -252,31 +252,57 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         child: Hero(
                           tag: contacts["contacts"][num]["chat_id"],
-                          child: Container(
-                            height: 44,
-                            width: 44,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: CachedNetworkImage(
-                                imageUrl:
-                                    contacts["contacts"][num]["profile_pic"],
-                                fit: BoxFit.cover,
-                                fadeInDuration: Duration.zero,
-                                fadeOutDuration: Duration.zero,
-                          
-                                placeholder: (context, url) => const Center(
-                                  child: SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 44,
+                                width: 44,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        contacts["contacts"][num]["profile_pic"],
+                                    fit: BoxFit.cover,
+                                    fadeInDuration: Duration.zero,
+                                    fadeOutDuration: Duration.zero,
+                              
+                                    placeholder: (context, url) => const Center(
+                                      child: SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
                                     ),
+                                    errorWidget: (context, url, error) =>
+                                        const Icon(Icons.broken_image),
                                   ),
                                 ),
-                                errorWidget: (context, url, error) =>
-                                    const Icon(Icons.broken_image),
                               ),
-                            ),
+                              isOnline && all_contacts.value["contacts"][num]["id"]!=user? Positioned(
+                                right: -7,
+                                bottom: -7,
+                                child: Icon(
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 20,
+                                          color: Colors.white,
+                                        ),
+                                      ],
+                                      size: 20,
+                                      Icons.circle_sharp,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        0,
+                                        255,
+                                        106,
+                                      ),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              )
+                                  : SizedBox.shrink(),
+                            ],
                           ),
                         ),
                       ),
@@ -352,34 +378,20 @@ class _MyHomePageState extends State<MyHomePage> {
                     //   ),
                     // ),
                     SizedBox(width: 10,),
-                    isOnline && all_contacts.value["contacts"][num]["id"]!=user? Icon(
-                                    shadows: [
-                                      Shadow(
-                                        blurRadius: 20,
-                                        color: Colors.black,
-                                      ),
-                                    ],
-                                    size: 20,
-                                    Icons.circle_sharp,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      0,
-                                      255,
-                                      106,
-                                    ),
-                                    fontWeight: FontWeight.bold,
-                                  )
-                                  : SizedBox.shrink(),
-                    SizedBox(width: 25),
-                    !contacts["contacts"][num]["msg_seen"]
-                        ? Text("🚀", style: TextStyle(fontSize: 15))
-                        // ?Icon(Icons.mark_email_unread,color: Color.fromARGB(
-                        //               255,
-                        //               0,
-                        //               255,
-                        //               106,
-                        //             ),)
-                        : SizedBox.shrink(),
+                    // isOnline && all_contacts.value["contacts"][num]["id"]!=user? Text(
+                    //                 "Active",
+                    //               )
+                    //               : SizedBox.shrink(),
+                    // SizedBox(width: 25),
+                    // !contacts["contacts"][num]["msg_seen"]
+                    //     ? Text("🚀", style: TextStyle(fontSize: 15))
+                    //     // ?Icon(Icons.mark_email_unread,color: Color.fromARGB(
+                    //     //               255,
+                    //     //               0,
+                    //     //               255,
+                    //     //               106,
+                    //     //             ),)
+                    //     : SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -646,17 +658,17 @@ Future <void>userpres()async{
           InkWell(
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
-              HapticFeedback.heavyImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ChatbotPage();
-                  },
-                ),
-              );
+              // HapticFeedback.heavyImpact();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) {
+              //       return ChatbotPage();
+              //     },
+              //   ),
+              // );
+              print(all_msg_list.value);
               
-              print(all_contacts.value["contacts"][0]["msg_seen"]);
               /////// check  ///////
             },
             child: CircleAvatar(
