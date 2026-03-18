@@ -646,18 +646,17 @@ Future <void>userpres()async{
           InkWell(
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
-              // HapticFeedback.heavyImpact();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) {
-              //       return ChatbotPage();
-              //     },
-              //   ),
-              // );
+              HapticFeedback.heavyImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ChatbotPage();
+                  },
+                ),
+              );
               
-              // print(all_contacts.value["contacts"][0]["msg_seen"]);
-              chatApi.markLastMsgSeen("onkar.gaikwad@iitgn.ac.in__onkargaikwad3319@gmail.com");
+              print(all_contacts.value["contacts"][0]["msg_seen"]);
               /////// check  ///////
             },
             child: CircleAvatar(
