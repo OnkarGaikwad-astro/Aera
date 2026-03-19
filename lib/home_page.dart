@@ -151,143 +151,233 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 );
               },
-
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                  color: chat_color,
-                ),
-                width: double.infinity,
-                height: 60,
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(10),
-                        onTap: () {
-                          HapticFeedback.vibrate();
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return Dialog(
-                                child: Builder(
-                                  builder: (context) {
-                                    const double imageSize = 300;
-                                    final double dpr = MediaQuery.of(
-                                      context,
-                                    ).devicePixelRatio;
-
-                                    String highQualityUrl(String url) {
-                                      return url.replaceAll(
-                                        RegExp(r's\d+-c'),
-                                        's800-c',
-                                      );
-                                    }
-
-                                    return Container(
-                                      height: 330,
-                                      padding: const EdgeInsets.all(2),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Hero(
-                                            tag:
-                                                contacts["contacts"][num]["name"],
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(25),
-                                              child: RepaintBoundary(
-                                                child: CachedNetworkImage(
-                                                  imageUrl: highQualityUrl(
-                                                    contacts["contacts"][num]["profile_pic"],
-                                                  ),
-                                                  width: imageSize,
-                                                  height: imageSize,
-                                                  fit: BoxFit.contain,
-                                                  filterQuality:
-                                                      FilterQuality.high,
-                                                  memCacheWidth:
-                                                      (imageSize * dpr).round(),
-                                                  memCacheHeight:
-                                                      (imageSize * dpr).round(),
-                                                  fadeInDuration: Duration.zero,
-                                                  fadeOutDuration:
-                                                      Duration.zero,
-                                                  placeholder: (context, url) =>
-                                                      const SizedBox(
-                                                        height: 300,
-                                                        child: Center(
-                                                          child:
-                                                              CircularProgressIndicator(
-                                                                strokeWidth: 2,
-                                                              ),
-                                                        ),
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: chat_color,
+                    ),
+                    width: double.infinity,
+                    height: 60,
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(4.0),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(10),
+                            onTap: () {
+                              HapticFeedback.vibrate();
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return Dialog(
+                                    child: Builder(
+                                      builder: (context) {
+                                        const double imageSize = 300;
+                                        final double dpr = MediaQuery.of(
+                                          context,
+                                        ).devicePixelRatio;
+                  
+                                        String highQualityUrl(String url) {
+                                          return url.replaceAll(
+                                            RegExp(r's\d+-c'),
+                                            's800-c',
+                                          );
+                                        }
+                  
+                                        return Container(
+                                          height: 330,
+                                          padding: const EdgeInsets.all(2),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Hero(
+                                                tag:
+                                                    contacts["contacts"][num]["name"],
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(25),
+                                                  child: RepaintBoundary(
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: highQualityUrl(
+                                                        contacts["contacts"][num]["profile_pic"],
                                                       ),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          const Icon(
-                                                            Icons.broken_image,
-                                                            size: 40,
+                                                      width: imageSize,
+                                                      height: imageSize,
+                                                      fit: BoxFit.contain,
+                                                      filterQuality:
+                                                          FilterQuality.high,
+                                                      memCacheWidth:
+                                                          (imageSize * dpr).round(),
+                                                      memCacheHeight:
+                                                          (imageSize * dpr).round(),
+                                                      fadeInDuration: Duration.zero,
+                                                      fadeOutDuration:
+                                                          Duration.zero,
+                                                      placeholder: (context, url) =>
+                                                          const SizedBox(
+                                                            height: 300,
+                                                            child: Center(
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                    strokeWidth: 2,
+                                                                  ),
+                                                            ),
                                                           ),
+                                                      errorWidget:
+                                                          (context, url, error) =>
+                                                              const Icon(
+                                                                Icons.broken_image,
+                                                                size: 40,
+                                                              ),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                              const SizedBox(height: 6),
+                                              Text(
+                                                contacts["contacts"][num]["name"],
+                                                style: GoogleFonts.josefinSans(
+                                                  fontSize: 10,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            contacts["contacts"][num]["name"],
-                                            style: GoogleFonts.josefinSans(
-                                              fontSize: 10,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
                               );
                             },
-                          );
-                        },
-                        child: Hero(
-                          tag: contacts["contacts"][num]["chat_id"],
-                          child: Stack(
-                            children: [
-                              Container(
-                                height: 44,
-                                width: 44,
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        contacts["contacts"][num]["profile_pic"],
-                                    fit: BoxFit.cover,
-                                    fadeInDuration: Duration.zero,
-                                    fadeOutDuration: Duration.zero,
-                              
-                                    placeholder: (context, url) => const Center(
-                                      child: SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
+                            child: Hero(
+                              tag: contacts["contacts"][num]["chat_id"],
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    height: 44,
+                                    width: 44,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: CachedNetworkImage(
+                                        imageUrl:
+                                            contacts["contacts"][num]["profile_pic"],
+                                        fit: BoxFit.cover,
+                                        fadeInDuration: Duration.zero,
+                                        fadeOutDuration: Duration.zero,
+                                  
+                                        placeholder: (context, url) => const Center(
+                                          child: SizedBox(
+                                            height: 20,
+                                            width: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                            ),
+                                          ),
                                         ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.broken_image),
                                       ),
                                     ),
-                                    errorWidget: (context, url, error) =>
-                                        const Icon(Icons.broken_image),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 9),
+                        SizedBox(
+                          width: 230,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 5),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: SizedBox(
+                                  width: 300,
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 210,
+                                        child: Text(
+                                          contacts["contacts"][num]["name"],
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.josefinSans(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              isOnline && all_contacts.value["contacts"][num]["id"]!=user? Positioned(
-                                right: -7,
-                                bottom: -7,
+                              Row(
+                                children: [
+                                  SizedBox(width: 4),
+                                  SizedBox(
+                                    width: 210,
+                                    child: Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      // softWrap: false,/
+                                      maxLines: 1,
+                                      all_contacts
+                                              .value["contacts"][num]["last_msg"]
+                                              .contains(SECRET_MARKER)
+                                          ? " ◯ Image"
+                                          : all_contacts
+                                                .value["contacts"][num]["last_msg"],
+                                      style: GoogleFonts.exo2(
+                                        fontSize: 13.5,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          198,
+                                          196,
+                                          196,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Text(
+                        //   "${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                        //   style: TextStyle(
+                        //     fontSize: 8,
+                        //     fontFamily: "times new roman",
+                        //     color: isdark
+                        //         ? Colors.grey
+                        //         : const Color.fromARGB(255, 72, 71, 71),
+                        //   ),
+                        // ),
+                        SizedBox(width: 10,),
+                     
+                        // SizedBox(width: 25),
+                        // !contacts["contacts"][num]["msg_seen"]
+                        //     ? Text("🚀", style: TextStyle(fontSize: 15))
+                        //     // ?Icon(Icons.mark_email_unread,color: Color.fromARGB(
+                        //     //               255,
+                        //     //               0,
+                        //     //               255,
+                        //     //               106,
+                        //     //             ),)
+                        //     : SizedBox.shrink(),
+                      ],
+                    ),
+                  ),  isOnline && all_contacts.value["contacts"][num]["id"]!=user? Positioned(
+                                left: 0,
+                                top: 0,
                                 child: Icon(
                                       shadows: [
                                         Shadow(
-                                          blurRadius: 20,
-                                          color: Colors.white,
+                                          blurRadius: 10,
+                                          color: Colors.teal,
                                         ),
                                       ],
                                       size: 20,
@@ -302,98 +392,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                     ),
                               )
                                   : SizedBox.shrink(),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 9),
-                    SizedBox(
-                      width: 230,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 5),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: 300,
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 210,
-                                    child: Text(
-                                      contacts["contacts"][num]["name"],
-                                      softWrap: true,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: GoogleFonts.josefinSans(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              SizedBox(width: 4),
-                              SizedBox(
-                                width: 210,
-                                child: Text(
-                                  overflow: TextOverflow.ellipsis,
-                                  // softWrap: false,/
-                                  maxLines: 1,
-                                  all_contacts
-                                          .value["contacts"][num]["last_msg"]
-                                          .contains(SECRET_MARKER)
-                                      ? " ◯ Image"
-                                      : all_contacts
-                                            .value["contacts"][num]["last_msg"],
-                                  style: GoogleFonts.exo2(
-                                    fontSize: 13.5,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      198,
-                                      196,
-                                      196,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Text(
-                    //   "${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(all_contacts.value["contacts"][num]["last_message_time"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
-                    //   style: TextStyle(
-                    //     fontSize: 8,
-                    //     fontFamily: "times new roman",
-                    //     color: isdark
-                    //         ? Colors.grey
-                    //         : const Color.fromARGB(255, 72, 71, 71),
-                    //   ),
-                    // ),
-                    SizedBox(width: 10,),
-                    // isOnline && all_contacts.value["contacts"][num]["id"]!=user? Text(
-                    //                 "Active",
-                    //               )
-                    //               : SizedBox.shrink(),
-                    // SizedBox(width: 25),
-                    // !contacts["contacts"][num]["msg_seen"]
-                    //     ? Text("🚀", style: TextStyle(fontSize: 15))
-                    //     // ?Icon(Icons.mark_email_unread,color: Color.fromARGB(
-                    //     //               255,
-                    //     //               0,
-                    //     //               255,
-                    //     //               106,
-                    //     //             ),)
-                    //     : SizedBox.shrink(),
-                  ],
-                ),
+
+                ],
               ),
             ),
           );
@@ -491,12 +491,19 @@ Future <void>userpres()async{
     setState(() {});
   }
 
-
+Future<void> fetch_on_contacts()async{
+  final onn = await chatApi.on_contacts();
+  onlineUsers = onn ;
+  print(onn);
+  setState(() {
+  });
+}
 
   @override
   void initState() {
     super.initState();
     chatApi.fetch_api();
+    fetch_on_contacts();
     userpres();
     chatApi.savefcm();
     if (Hive.box("aurex_api").get("keys") != null) {
@@ -658,18 +665,16 @@ Future <void>userpres()async{
           InkWell(
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
-              // HapticFeedback.heavyImpact();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) {
-              //       return ChatbotPage();
-              //     },
-              //   ),
-              // );
-              print(all_msg_list.value);
-              
-              /////// check  ///////
+              HapticFeedback.heavyImpact();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ChatbotPage();
+                  },
+                ),
+              );
+             
             },
             child: CircleAvatar(
               maxRadius: 15,

@@ -204,6 +204,21 @@ class SupabaseChatApi {
 
   /////  user status /////
 
+  Future <Map<String, bool>> on_contacts()async{
+    final contacts = all_contacts.value["contacts"] as List ?? [];
+    Map<String, bool> on_users = {};
+    final ids = contacts
+        .map((c) => c["id"])
+        .where((id) => id != null && id.toString().isNotEmpty)
+        .toList();
+    final users = await _db.from("user_presence").select("user_id,is_online").inFilter("user_id", ids);
+
+    for(final i in users){
+      on_users[i["user_id"]] = i["is_online"];
+    }
+    return on_users;
+  }
+
   Future<void> setOnline() async {
     final user = await FirebaseAuth.instance.currentUser!.email!;
     await Supabase.instance.client.from('user_presence').upsert({

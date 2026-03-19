@@ -26,12 +26,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 bool Isdark = true;
 bool isSelecting = false;
 List selected_items = [];
-bool imagesent = true ;
+bool imagesent = true;
 int replyid = -1;
 bool noti = false;
 late RealtimeChannel presenceChannel;
 bool isOnline = false;
 String your_name = "";
+File? selectedImage;
 class ChatPage extends StatefulWidget {
   final dynamic ID;
   const ChatPage({super.key, required this.ID});
@@ -59,7 +60,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     "message_count": 0,
     "messages": <dynamic>[],
   };
-  File? selectedImage;
   bool otherUserTyping = false;
 
   static final AudioPlayer _player = AudioPlayer();
@@ -98,11 +98,10 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     setState(() {});
   }
 
-
   Future<void> username() async {
-      final name = await FirebaseAuth.instance.currentUser!.displayName;
-      your_name = name!;
-      print(name);
+    final name = await FirebaseAuth.instance.currentUser!.displayName;
+    your_name = name!;
+    print(name);
     setState(() {});
   }
 
@@ -114,6 +113,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     if (msg != "") playClick();
     await all_chats_list();
     user_contact();
+    temp_msg = "";
     print("🚀🚀🚀🚀 msg sent");
   }
 
@@ -148,11 +148,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     return pair.join("__");
   }
 
-void userpre()async{
-isOnline = await chatApi.getuserpresence(widget.ID);
-print(isOnline);
-print("\n\n user presence detected \n\n");
-}
+  void userpre() async {
+    isOnline = await chatApi.getuserpresence(widget.ID);
+    print(isOnline);
+    print("\n\n user presence detected \n\n");
+  }
+
   /// init state  ////
   @override
   void initState() {
@@ -178,7 +179,6 @@ print("\n\n user presence detected \n\n");
             value: widget.ID,
           ),
           callback: (payload) {
-
             print('🟢 PRESENCE UPDATE → $isOnline');
             final data = payload.newRecord;
             if (data == null) return;
@@ -279,7 +279,6 @@ print("\n\n user presence detected \n\n");
   }
 
   // ///  refresh msgs when app resumes from home /////
-
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -504,7 +503,9 @@ print("\n\n user presence detected \n\n");
                                   height: 40,
                                   width: 40,
                                   child: ClipRRect(
-                                    borderRadius: BorderRadiusGeometry.circular(10),
+                                    borderRadius: BorderRadiusGeometry.circular(
+                                      10,
+                                    ),
                                     child: RepaintBoundary(
                                       child: CachedNetworkImage(
                                         imageUrl:
@@ -513,20 +514,25 @@ print("\n\n user presence detected \n\n");
                                                   (e) => e['id'] == widget.ID,
                                                 )]["profile_pic"],
                                         fit: BoxFit.cover,
-                                        placeholder: (context, url) => const Center(
-                                          child: SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              padding: EdgeInsets.all(5),
-                                              color: Colors.black,
-                                              constraints: BoxConstraints(
-                                                minWidth: 20,
-                                                minHeight: 20,
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                              child: SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      padding: EdgeInsets.all(
+                                                        5,
+                                                      ),
+                                                      color: Colors.black,
+                                                      constraints:
+                                                          BoxConstraints(
+                                                            minWidth: 20,
+                                                            minHeight: 20,
+                                                          ),
+                                                    ),
                                               ),
                                             ),
-                                          ),
-                                        ),
                                         errorWidget: (context, url, error) =>
                                             const Icon(Icons.broken_image),
                                         memCacheWidth: 400,
@@ -539,7 +545,29 @@ print("\n\n user presence detected \n\n");
                                 ),
                               ),
                             ),
-                            isOnline?Positioned(right: -1,top: -1,child: Icon(shadows: [Shadow(blurRadius: 20,color: Colors.black)],size: 17,Icons.circle,color: const Color.fromARGB(255, 0, 255, 106),fontWeight: FontWeight.bold,)):SizedBox.shrink()
+                            isOnline
+                                ? Positioned(
+                                    right: -1,
+                                    top: -1,
+                                    child: Icon(
+                                      shadows: [
+                                        Shadow(
+                                          blurRadius: 20,
+                                          color: Colors.black,
+                                        ),
+                                      ],
+                                      size: 17,
+                                      Icons.circle,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        0,
+                                        255,
+                                        106,
+                                      ),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  )
+                                : SizedBox.shrink(),
                           ],
                         ),
                         SizedBox(width: 20),
@@ -670,7 +698,16 @@ print("\n\n user presence detected \n\n");
                                 borderRadius: BorderRadiusGeometry.circular(10),
                                 child: Image.file(selectedImage!, height: 70),
                               ),
-                              imagesent?SizedBox.shrink():Positioned.fill(child: SizedBox(height: 90,child: Lottie.asset("assets/lotties/Loading_Animation_blue.json"))),
+                              imagesent
+                                  ? SizedBox.shrink()
+                                  : Positioned.fill(
+                                      child: SizedBox(
+                                        height: 90,
+                                        child: Lottie.asset(
+                                          "assets/lotties/Loading_Animation_blue.json",
+                                        ),
+                                      ),
+                                    ),
                               Positioned(
                                 right: -17,
                                 bottom: 40,
@@ -752,10 +789,15 @@ print("\n\n user presence detected \n\n");
                                 type_msg.text = "";
 
                                 if (msg.contains("@Aurex")) {
-                                    if(isreplying && replyid!=-1){
-                                      gemini("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg);
-                                    }else{gemini(msg);}
+                                  if (isreplying && replyid != -1) {
+                                    gemini(
+                                      "{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information" +
+                                          msg,
+                                    );
+                                  } else {
+                                    gemini(msg);
                                   }
+                                }
 
                                 if (isreplying) {
                                   if (replyid != -1)
@@ -865,10 +907,16 @@ print("\n\n user presence detected \n\n");
                               final msg = type_msg.text;
                               type_msg.text = "";
                               if (msg.contains("@Aurex")) {
-                                    if(isreplying && replyid!=-1){
-                                      gemini("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg);
-                                    }else{gemini(msg);}
-                                  }
+                                if (isreplying && replyid != -1) {
+                                  gemini(
+                                    "{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information" +
+                                        msg,
+                                  );
+                                } else {
+                                  gemini(msg);
+                                }
+                              }
+                              print(selectedImage);
                               if (msg != "") {
                                 if (isreplying) {
                                   if (replyid != -1)
@@ -879,18 +927,16 @@ print("\n\n user presence detected \n\n");
                                   isreplying = false;
                                   setState(() {});
                                   print("object 1");
+                                 
                                 } else if (selectedImage != null) {
                                   await uploadImageBase64(selectedImage!, msg);
                                 } else {
                                   await send_message(msg, "message");
                                 }
-                              }else if (selectedImage != null) {
-                                    print("object");
-                                    await uploadImageBase64(
-                                      selectedImage!,
-                                      msg,
-                                    );
-                                  } 
+                              } else if (selectedImage != null) {
+                                print("object");
+                                await uploadImageBase64(selectedImage!, msg);
+                              }
 
                               temp_msg = "";
                               selectedImage = null;
@@ -947,7 +993,12 @@ print("\n\n user presence detected \n\n");
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                your_name == chat["messages"][replyid]["sender_name"].toString().trim()?"You":chat["messages"][replyid]["sender_name"],
+                                your_name ==
+                                        chat["messages"][replyid]["sender_name"]
+                                            .toString()
+                                            .trim()
+                                    ? "You"
+                                    : chat["messages"][replyid]["sender_name"],
                                 // "Onkar",
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.exo2(
@@ -1036,7 +1087,7 @@ print("\n\n user presence detected \n\n");
   //////  sended reply widget  //////
 
   Widget sendedreply(no) {
-    bool ismsg = false ;  
+    bool ismsg = false;
     ismsg = isseenmsg(no);
     final msg = chat["messages"][no]["msg"].toString().split("rpy");
     return Align(
@@ -1161,7 +1212,7 @@ print("\n\n user presence detected \n\n");
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  your_name == msg[0].trim()?"You":msg[0],
+                                  your_name == msg[0].trim() ? "You" : msg[0],
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.exo2(
                                     // color: const Color.fromARGB(255, 2, 194, 174),
@@ -1255,22 +1306,26 @@ print("\n\n user presence detected \n\n");
                     ),
                     Align(
                       alignment: Alignment.topRight,
-                      child: Text(
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} " +  (!ismsg?"⬤":"◯"),
-                        style: GoogleFonts.spaceGrotesk(
-                          fontSize: 10,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(2, 2), // X and Y position
-                              blurRadius: 4, // Softness
-                              color: Colors.black, // Shadow color
-                            ),
-                          ],
-                          fontWeight: FontWeight.w400,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right:5.0),
+                        child: Text(
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                          "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]}  " +
+                              (!ismsg ? "⬤" : "◯"),
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 10,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(2, 2), // X and Y position
+                                blurRadius: 4, // Softness
+                                color: Colors.black, // Shadow color
+                              ),
+                            ],
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ),
@@ -1287,6 +1342,11 @@ print("\n\n user presence detected \n\n");
   /////  received reply widget
 
   Widget receivedreply(no) {
+    chatApi.markMsgSeen(
+      chatId,
+      chat["messages"][no]["conversation_id"],
+      chat["messages"][no]["msg_seen"],
+    );
     final msg = chat["messages"][no]["msg"].toString().split("rpy");
     return Align(
       alignment: AlignmentGeometry.centerLeft,
@@ -1410,7 +1470,7 @@ print("\n\n user presence detected \n\n");
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  your_name == msg[0].trim()?"You":msg[0],
+                                  your_name == msg[0].trim() ? "You" : msg[0],
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.exo2(
                                     // color: const Color.fromARGB(255, 2, 194, 174),
@@ -1506,22 +1566,25 @@ print("\n\n user presence detected \n\n");
                     ),
                     Align(
                       alignment: Alignment.topLeft,
-                      child: Text(
-                        softWrap: true,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.left,
-                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
-                        style: GoogleFonts.spaceGrotesk(
-                          fontSize: 10,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(2, 2), // X and Y position
-                              blurRadius: 4, // Softness
-                              color: Colors.black, // Shadow color
-                            ),
-                          ],
-                          fontWeight: FontWeight.w400,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left:5.0),
+                        child: Text(
+                          softWrap: true,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.left,
+                          "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                          style: GoogleFonts.spaceGrotesk(
+                            fontSize: 10,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(2, 2), // X and Y position
+                                blurRadius: 4, // Softness
+                                color: Colors.black, // Shadow color
+                              ),
+                            ],
+                            fontWeight: FontWeight.w400,
+                          ),
                         ),
                       ),
                     ),
@@ -1535,7 +1598,6 @@ print("\n\n user presence detected \n\n");
     );
   }
 
-
   Future<void> user_contacts() async {
     final email = await FirebaseAuth.instance.currentUser?.email;
     final a = await chatApi.getUserContacts(email!);
@@ -1546,7 +1608,7 @@ print("\n\n user presence detected \n\n");
   }
 
   Widget sent_image_base(int no) {
-    bool ismsg = false ;  
+    bool ismsg = false;
     ismsg = isseenmsg(no);
     bool imageloaded = false;
     return GestureDetector(
@@ -1563,8 +1625,10 @@ print("\n\n user presence detected \n\n");
                   maxScale: 5,
                   child: Image.network(
                     filterQuality: FilterQuality.high,
-                    chat["messages"][no]["msg"].split(SECRET_MARKER)[1].toString()
-                          .split("cpn")[0],
+                    chat["messages"][no]["msg"]
+                        .split(SECRET_MARKER)[1]
+                        .toString()
+                        .split("cpn")[0],
                   ),
                 ),
               ),
@@ -1731,15 +1795,25 @@ print("\n\n user presence detected \n\n");
                         top: 2,
                         right: 4,
                       ),
-                      child: Text(
-                        textAlign: TextAlign.start,
-                        chat["messages"][no]["msg"]
-                            .split(SECRET_MARKER)[1]
-                            .toString()
-                            .split("cpn")
-                            .last,
-                        style: GoogleFonts.josefinSans(color: Colors.black),
-                      ),
+                      child:
+                          (chat["messages"][no]["msg"]
+                                  .split(SECRET_MARKER)[1]
+                                  .toString()
+                                  .split("cpn")
+                                  .last !=
+                              "")
+                          ? Text(
+                              textAlign: TextAlign.start,
+                              chat["messages"][no]["msg"]
+                                  .split(SECRET_MARKER)[1]
+                                  .toString()
+                                  .split("cpn")
+                                  .last,
+                              style: GoogleFonts.josefinSans(
+                                color: Colors.black,
+                              ),
+                            )
+                          : SizedBox.shrink(),
                     ),
               Align(
                 alignment: Alignment.bottomRight,
@@ -1747,7 +1821,8 @@ print("\n\n user presence detected \n\n");
                   padding: const EdgeInsets.only(right: 8.0, bottom: 4),
                   child: Text(
                     textAlign: TextAlign.start,
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} " + (!ismsg?"⬤":"◯"),
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]}  " +
+                        (!ismsg ? "⬤" : "◯"),
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 10,
                       color: Colors.white,
@@ -1796,6 +1871,11 @@ print("\n\n user presence detected \n\n");
   }
 
   Widget received_image_base(int no) {
+    chatApi.markMsgSeen(
+      chatId,
+      chat["messages"][no]["conversation_id"],
+      chat["messages"][no]["msg_seen"],
+    );
     bool imageloaded = false;
     return GestureDetector(
       onTap: () {
@@ -1984,15 +2064,25 @@ print("\n\n user presence detected \n\n");
                         top: 2,
                         right: 4,
                       ),
-                      child: Text(
-                        textAlign: TextAlign.start,
-                        chat["messages"][no]["msg"]
-                            .split(SECRET_MARKER)[1]
-                            .toString()
-                            .split("cpn")
-                            .last,
-                        style: GoogleFonts.josefinSans(color: Colors.black),
-                      ),
+                      child:
+                          (chat["messages"][no]["msg"]
+                                  .split(SECRET_MARKER)[1]
+                                  .toString()
+                                  .split("cpn")
+                                  .last !=
+                              "")
+                          ? Text(
+                              textAlign: TextAlign.start,
+                              chat["messages"][no]["msg"]
+                                  .split(SECRET_MARKER)[1]
+                                  .toString()
+                                  .split("cpn")
+                                  .last,
+                              style: GoogleFonts.josefinSans(
+                                color: Colors.black,
+                              ),
+                            )
+                          : SizedBox.shrink(),
                     ),
               Align(
                 alignment: Alignment.bottomLeft,
@@ -2039,42 +2129,42 @@ print("\n\n user presence detected \n\n");
   //// upload image to database //////
   Future<void> uploadImageBase64(File imageFile, String msg) async {
     imagesent = false;
-    setState(() {
-      
-    });
+    setState(() {});
     final bytes = await imageFile.readAsBytes();
     final url = await chatApi.uploadImageBase64(base64Encode(bytes));
     print("\n");
     print("🚀url 📷${url}");
     print("\n");
     await send_message("${SECRET_MARKER}${url}cpn${msg}", "image");
-    imagesent =true;
+    imagesent = true;
+    temp_msg = "";
     setState(() {});
   }
 
-
-bool isseenmsg(int no){
-  bool seen = false;
+  bool isseenmsg(int no) {
+    bool seen = false;
     final raw = chat["messages"][no]["msg_seen"];
     Map<String, dynamic> members;
     if (raw is String) {
       members = jsonDecode(raw);
     } else {
       members = Map<String, dynamic>.from(raw);
-     
     }
-    if (members[widget.ID] == true ) {
+    if (members[widget.ID] == true) {
       seen = true;
-    }else{
-      seen = false ;
+    } else {
+      seen = false;
     }
-  return seen;
-}
-
+    return seen;
+  }
 
   ///////  recieved message widget ///////
   Widget recieved_msg(int no) {
-    chatApi.markMsgSeen(chatId,chat["messages"][no]["conversation_id"],chat["messages"][no]["msg_seen"]);
+    chatApi.markMsgSeen(
+      chatId,
+      chat["messages"][no]["conversation_id"],
+      chat["messages"][no]["msg_seen"],
+    );
     return GestureDetector(
       onLongPressStart: (details) {
         HapticFeedback.selectionClick();
@@ -2224,7 +2314,7 @@ bool isseenmsg(int no){
 
   //////// sent message widget  ///////
   Widget sended_msg(int no) {
-    bool ismsg = false ;  
+    bool ismsg = false;
     ismsg = isseenmsg(no);
     return Transform.translate(
       offset: Offset(0, 0),
@@ -2367,7 +2457,8 @@ bool isseenmsg(int no){
                       softWrap: true,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.left,
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]}  " + (!ismsg?"⬤":"◯"),
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]}  " +
+                          (!ismsg ? "⬤" : "◯"),
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 10,
                         color: Colors.white,
