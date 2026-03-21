@@ -322,7 +322,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                     width: 210,
                                     child: Text(
                                       overflow: TextOverflow.ellipsis,
-                                      // softWrap: false,/
                                       maxLines: 1,
                                       all_contacts
                                               .value["contacts"][num]["last_msg"]

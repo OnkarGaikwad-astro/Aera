@@ -1133,7 +1133,9 @@ Future<void>Markmsgseen()async{
                                     : Text(
                                         msg[1],
                                         softWrap: true,
-                                        style: GoogleFonts.josefinSans(),
+                                        style: GoogleFonts.josefinSans(
+                                          color:Colors.white
+                                        ),
                                       ),
                               ),
                             ],
@@ -1552,7 +1554,9 @@ Future<void>Markmsgseen()async{
                                         : Text(
                                             msg[1],
                                             softWrap: true,
-                                            style: GoogleFonts.josefinSans(),
+                                            style: GoogleFonts.josefinSans(
+                                              color: Colors.white
+                                            ),
                                           ),
                                   ),
                                 ],

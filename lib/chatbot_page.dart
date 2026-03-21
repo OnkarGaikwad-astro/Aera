@@ -27,6 +27,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 bool Isdark = true;
 late RealtimeChannel presenceChannel;
 int replyid = -1;
+bool isollama = false;
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
@@ -45,7 +46,7 @@ String your_name = "";
 class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
   late RealtimeChannel messageChannel;
 
-bool isreplying = false ;
+  bool isreplying = false;
 
   @override
   ///// fetch chat /////
@@ -66,7 +67,6 @@ bool isreplying = false ;
     await _player.play(AssetSource('sounds/receive.mp3'), volume: 1.0);
     print("played");
   }
-
 
   Widget typing_indi() {
     if (otherUserTyping) {
@@ -98,7 +98,6 @@ bool isreplying = false ;
     }
   }
 
-
   Future<void> fetch_chat() async {
     final Map<String, dynamic> msg_list = Map<String, dynamic>.from(
       all_msg_list.value,
@@ -119,26 +118,36 @@ bool isreplying = false ;
   }
 
   ///////   send message   ////
-  Future<void> send_message(String msg,String type) async {
+  Future<void> send_message(String msg, String type) async {
     if (msg == "") return;
-    
+
     gemini(msg);
     final email = await FirebaseAuth.instance.currentUser?.email;
     otherUserTyping = true;
-    await chatApi.addMsgforchatbot(email!, "chatbot",msg,type,your_name);
-    
+    await chatApi.addMsgforchatbot(email!, "chatbot", msg, type, your_name);
+
     await all_chats_list();
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
   }
-  Future<void> send_reply_message(String msg,String type) async {
+
+  Future<void> send_reply_message(String msg, String type) async {
     if (msg == "") return;
     otherUserTyping = true;
-    gemini("{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information"+msg);
+    gemini(
+      "{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information" +
+          msg,
+    );
     final email = await FirebaseAuth.instance.currentUser?.email;
-    await chatApi.addMsgforchatbot(email!, "chatbot", "${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}",type,your_name);
-    
+    await chatApi.addMsgforchatbot(
+      email!,
+      "chatbot",
+      "${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}",
+      type,
+      your_name,
+    );
+
     await all_chats_list();
     user_contact();
     playClick();
@@ -164,11 +173,10 @@ bool isreplying = false ;
     return pair.join("__");
   }
 
-
-    Future<void> username() async {
-      final name = await FirebaseAuth.instance.currentUser!.displayName;
-      your_name = name!;
-      print(name);
+  Future<void> username() async {
+    final name = await FirebaseAuth.instance.currentUser!.displayName;
+    your_name = name!;
+    print(name);
     setState(() {});
   }
 
@@ -207,13 +215,12 @@ bool isreplying = false ;
             if (newMsg["sender_id"] != myUserId) {
               print("📸📸📸 ");
               otherUserTyping = false;
-              setState(() {
-              });
+              setState(() {});
               receivedsound();
             }
             if (newMsg["sender_id"] == myUserId) {
               print("object🚀 ");
-             playClick();
+              playClick();
             }
           },
         )
@@ -233,7 +240,6 @@ bool isreplying = false ;
     super.dispose();
   }
 
-
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       chatApi.setOnline();
@@ -244,9 +250,7 @@ bool isreplying = false ;
     }
   }
 
-
   @override
-
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -324,9 +328,15 @@ bool isreplying = false ;
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
                             ),
-                           
                           ],
                         ),
+                      ),
+                      Switch(
+                        value: isollama,
+                        onChanged: (value) {
+                          isollama = !isollama;
+                          setState(() {});
+                        },
                       ),
                     ],
                   ),
@@ -383,14 +393,12 @@ bool isreplying = false ;
                         if (chat["messages"][realIndex]["msg"] == "")
                           return SizedBox.shrink();
                         return chat["messages"][realIndex]["user_sent"] == "no"
-                            ? (chat["messages"][realIndex]["type"] ==
-                                        "message")
+                            ? (chat["messages"][realIndex]["type"] == "message")
                                   ? recieved_msg(realIndex)
                                   : receivedreply(realIndex)
-                            : (chat["messages"][realIndex]["type"] ==
-                                        "message")
-                                  ? sended_msg(realIndex)
-                                  : sendedreply(realIndex);
+                            : (chat["messages"][realIndex]["type"] == "message")
+                            ? sended_msg(realIndex)
+                            : sendedreply(realIndex);
                       },
                     ),
                   ),
@@ -436,7 +444,9 @@ bool isreplying = false ;
                             // height: 50,
                             height: double.maxFinite,
                             child: TextField(
-                               style: GoogleFonts.josefinSans(color: Colors.black,),
+                              style: GoogleFonts.josefinSans(
+                                color: Colors.black,
+                              ),
                               onChanged: (value) {
                                 msg_sent = false;
                                 temp_msg = type_msg.text;
@@ -452,18 +462,16 @@ bool isreplying = false ;
                                 setState(() {});
                                 final msg = type_msg.text;
                                 type_msg.text = "";
-                                if(isreplying && replyid!=-1){
-                                await send_reply_message(msg,"reply");
-                                replyid = -1;
-                                isreplying = false;
-                                setState(() {
-                                  
-                                });}
-                                else{await send_message(msg, "message");}
+                                if (isreplying && replyid != -1) {
+                                  await send_reply_message(msg, "reply");
+                                  replyid = -1;
+                                  isreplying = false;
+                                  setState(() {});
+                                } else {
+                                  await send_message(msg, "message");
+                                }
                                 temp_msg = "";
-                                setState(() {
-                                  
-                                });
+                                setState(() {});
                               },
                               controller: type_msg,
                               // maxLines: 4,
@@ -482,12 +490,17 @@ bool isreplying = false ;
                                     style: GoogleFonts.josefinSans(
                                       letterSpacing: 1.5,
                                       fontSize: 13,
-                                      color: Colors.black
+                                      color: Colors.black,
                                     ),
                                   ),
                                 ),
                                 filled: true,
-                                fillColor: const Color.fromARGB(189, 143, 167, 200),
+                                fillColor: const Color.fromARGB(
+                                  189,
+                                  143,
+                                  167,
+                                  200,
+                                ),
                                 disabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   // borderSide: BorderSide(
@@ -505,7 +518,12 @@ bool isreplying = false ;
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(15),
                                   borderSide: BorderSide(
-                                    color: const Color.fromARGB(0, 255, 255, 255)
+                                    color: const Color.fromARGB(
+                                      0,
+                                      255,
+                                      255,
+                                      255,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -527,22 +545,26 @@ bool isreplying = false ;
                               setState(() {});
                               final msg = type_msg.text;
                               type_msg.text = "";
-                  
+
                               if (msg != "") {
-                              if(isreplying && replyid!=-1){
-                                await send_reply_message(msg,"reply");
-                                replyid = -1;
-                                isreplying = false;
-                                setState(() {
-                                  
-                                });}
-                                else{await send_message(msg, "message");}
+                                if (isreplying && replyid != -1) {
+                                  await send_reply_message(msg, "reply");
+                                  replyid = -1;
+                                  isreplying = false;
+                                  setState(() {});
+                                } else {
+                                  await send_message(msg, "message");
+                                }
                               }
-                  
+
                               temp_msg = "";
                               setState(() {});
                             },
-                            icon: Icon(Icons.send_rounded, size: 25,color: Colors.white,),
+                            icon: Icon(
+                              Icons.send_rounded,
+                              size: 25,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ],
@@ -557,7 +579,7 @@ bool isreplying = false ;
     );
   }
 
-//////  replying widget  //////
+  //////  replying widget  //////
   Widget replyingwid() {
     return Align(
       alignment: AlignmentGeometry.centerRight,
@@ -568,7 +590,7 @@ bool isreplying = false ;
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             // color: Color(0xFF5BB9A8),
-            color:kTextHint,
+            color: kTextHint,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4),
@@ -589,7 +611,12 @@ bool isreplying = false ;
                             Align(
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                your_name == chat["messages"][replyid]["sender_name"].toString().trim()?"You":chat["messages"][replyid]["sender_name"],
+                                your_name ==
+                                        chat["messages"][replyid]["sender_name"]
+                                            .toString()
+                                            .trim()
+                                    ? "You"
+                                    : chat["messages"][replyid]["sender_name"],
                                 // "Onkar",
                                 overflow: TextOverflow.ellipsis,
                                 style: GoogleFonts.exo2(
@@ -675,8 +702,7 @@ bool isreplying = false ;
     );
   }
 
-
- //////  sended reply widget  //////
+  //////  sended reply widget  //////
 
   Widget sendedreply(no) {
     final msg = chat["messages"][no]["msg"].toString().split("rpy");
@@ -802,7 +828,7 @@ bool isreplying = false ;
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  your_name == msg[0].trim()?"You":msg[0],
+                                  your_name == msg[0].trim() ? "You" : msg[0],
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.exo2(
                                     // color: const Color.fromARGB(255, 2, 194, 174),
@@ -814,10 +840,12 @@ bool isreplying = false ;
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                        msg[1],
-                                        softWrap: true,
-                                        style: GoogleFonts.josefinSans(),
-                                      ),
+                                  msg[1],
+                                  softWrap: true,
+                                  style: GoogleFonts.josefinSans(
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -847,7 +875,6 @@ bool isreplying = false ;
                         ),
                       ),
                     ),
-                   
                   ],
                 ),
               ),
@@ -858,7 +885,7 @@ bool isreplying = false ;
     );
   }
 
-  ///// received  reply /// 
+  ///// received  reply ///
   Widget receivedreply(no) {
     final msg = chat["messages"][no]["msg"].toString().split("rpy");
     return Align(
@@ -983,7 +1010,7 @@ bool isreplying = false ;
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
-                                  your_name == msg[0].trim()?"You":msg[0],
+                                  your_name == msg[0].trim() ? "You" : msg[0],
                                   overflow: TextOverflow.ellipsis,
                                   style: GoogleFonts.exo2(
                                     color: kTextSecondary,
@@ -993,11 +1020,13 @@ bool isreplying = false ;
                               ),
                               Align(
                                 alignment: Alignment.centerLeft,
-                                child:Text(
-                                        msg[1],
-                                        softWrap: true,
-                                        style: GoogleFonts.josefinSans(),
-                                      ),
+                                child: Text(
+                                  msg[1],
+                                  softWrap: true,
+                                  style: GoogleFonts.josefinSans(
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -1028,7 +1057,6 @@ bool isreplying = false ;
                         ),
                       ),
                     ),
-                    
                   ],
                 ),
               ),
@@ -1037,7 +1065,7 @@ bool isreplying = false ;
         ),
       ),
     );
-  } 
+  }
 
   /////  mark msg seen ////
   Future<void> mark_msg_seen(String other_user) async {
@@ -1091,18 +1119,18 @@ bool isreplying = false ;
               ),
             ),
             PopupMenuItem(
-                value: "reply",
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.reply_rounded,
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                    ),
-                    SizedBox(width: 10),
-                    Text("Reply"),
-                  ],
-                ),
+              value: "reply",
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.reply_rounded,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  SizedBox(width: 10),
+                  Text("Reply"),
+                ],
               ),
+            ),
             PopupMenuItem(
               value: "Copy",
               child: Row(
@@ -1140,10 +1168,10 @@ bool isreplying = false ;
             Clipboard.setData(ClipboardData(text: chat["messages"][no]["msg"]));
           }
           if (value == "reply") {
-              isreplying = true;
-              replyid = no;
-              setState(() {});
-            }
+            isreplying = true;
+            replyid = no;
+            setState(() {});
+          }
         });
       },
       child: Padding(
@@ -1217,18 +1245,18 @@ bool isreplying = false ;
               ),
             ),
             PopupMenuItem(
-                value: "reply",
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.reply_rounded,
-                      color: const Color.fromARGB(255, 255, 255, 255),
-                    ),
-                    SizedBox(width: 10),
-                    Text("Reply"),
-                  ],
-                ),
+              value: "reply",
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.reply_rounded,
+                    color: const Color.fromARGB(255, 255, 255, 255),
+                  ),
+                  SizedBox(width: 10),
+                  Text("Reply"),
+                ],
               ),
+            ),
             PopupMenuItem(
               value: "Copy",
               child: Row(
@@ -1266,10 +1294,10 @@ bool isreplying = false ;
             Clipboard.setData(ClipboardData(text: chat["messages"][no]["msg"]));
           }
           if (value == "reply") {
-              isreplying = true;
-              replyid = no;
-              setState(() {});
-            }
+            isreplying = true;
+            replyid = no;
+            setState(() {});
+          }
           ;
         });
       },
@@ -1335,9 +1363,7 @@ bool isreplying = false ;
               ),
               child: Text(
                 temp_msg,
-                style: GoogleFonts.josefinSans(
-                  color: Colors.black,
-                ),
+                style: GoogleFonts.josefinSans(color: Colors.black),
               ),
             ),
           ),
@@ -1374,66 +1400,91 @@ bool isreplying = false ;
     await appKey.currentState?.user_contacts();
   }
 
-  
-Future<void> gemini(String prompt) async {
-  chatApi.fetch_api();
-  print("asking 🚀🚀");
-  String res = "Error";
-  for (String apiKey in api_keys.value) {
-    final url = Uri.parse(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
-    );
-
-    try {
+  Future<void> gemini(String prompt) async {
+    chatApi.fetch_api();
+    print("asking 🚀🚀");
+    String res = "Error";
+    if (isollama) {
+      final url = Uri.parse(
+        "https://heliographic-arthromeric-sharika.ngrok-free.dev/api/generate",
+      );
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "contents": [
-            {"role": "user",
-              "parts": [
-                {
-                  "text":
-                      prompt +
-                      " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info"
-                }
-              ]
-            }
-          ]
+          {
+            "model": "codellama",
+            "prompt":
+                prompt +
+                " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
+            "stream": false,
+          },
         }),
       );
+      res = jsonDecode(response.body);
+    } else {
+      for (String apiKey in api_keys.value) {
+        final url = Uri.parse(
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$apiKey",
+        );
 
-      print("Status: ${response.statusCode}");
+        try {
+          final response = await http.post(
+            url,
+            headers: {"Content-Type": "application/json"},
+            body: jsonEncode({
+              "contents": [
+                {
+                  "role": "user",
+                  "parts": [
+                    {
+                      "text":
+                          prompt +
+                          " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
+                    },
+                  ],
+                },
+              ],
+            }),
+          );
 
-      if (response.statusCode == 200) {
-        res = jsonDecode(response.body)
-            ["candidates"][0]["content"]["parts"][0]["text"];
-        break;
+          print("Status: ${response.statusCode}");
+
+          if (response.statusCode == 200) {
+            res = jsonDecode(
+              response.body,
+            )["candidates"][0]["content"]["parts"][0]["text"];
+            break;
+          }
+          if (response.statusCode == 429 ||
+              response.statusCode == 401 ||
+              response.statusCode == 403) {
+            print("Key failed, trying next...");
+            continue;
+          } else {
+            print("Other error: ${response.statusCode}");
+            break;
+          }
+        } catch (e) {
+          print("Exception: $e");
+          continue;
+        }
       }
-      if (response.statusCode == 429 ||
-          response.statusCode == 401 ||
-          response.statusCode == 403) {
-        print("Key failed, trying next...");
-        continue;
-      } else {
-        print("Other error: ${response.statusCode}");
-        break;
-      }
-
-    } catch (e) {
-      print("Exception: $e");
-      continue;
     }
+    send_response(res);
+    setState(() {});
   }
-  send_response(res);
-  setState(() {});
-}
-
 
   Future<void> send_response(String msg) async {
     final email = await FirebaseAuth.instance.currentUser?.email;
-    await chatApi.addMsgforchatbot("chatbot", email!, msg,"message","Aurex AI");
-    otherUserTyping  = false;
+    await chatApi.addMsgforchatbot(
+      "chatbot",
+      email!,
+      msg,
+      "message",
+      "Aurex AI",
+    );
+    otherUserTyping = false;
     receivedsound();
     await all_chats_list();
     user_contact();

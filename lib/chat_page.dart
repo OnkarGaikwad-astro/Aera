@@ -276,6 +276,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         .eq('chat_id', chatId)
         .eq('user_id', me);
     super.dispose();
+    isOnline = false;
   }
 
   // ///  refresh msgs when app resumes from home /////
@@ -301,6 +302,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         onPopInvoked: (didPop) {
           if (didPop) {
             noti = false;
+            isOnline = false;
             print("🚀DEVICE BACK BUTTON PRESSED");
           }
         },
@@ -1273,7 +1275,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                     : Text(
                                         msg[1],
                                         softWrap: true,
-                                        style: GoogleFonts.josefinSans(),
+                                        style: GoogleFonts.josefinSans(
+                                          color: Colors.white
+                                        ),
                                       ),
                               ),
                             ],
@@ -1532,7 +1536,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                     : Text(
                                         msg[1],
                                         softWrap: true,
-                                        style: GoogleFonts.josefinSans(),
+                                        style: GoogleFonts.josefinSans(
+                                          color: Colors.white
+                                        ),
                                       ),
                               ),
                             ],
