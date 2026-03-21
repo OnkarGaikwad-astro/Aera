@@ -334,10 +334,11 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                       Switch(
                         value: isollama,
                         onChanged: (value) {
-                          isollama = !isollama;
+                          isollama = value;
                           setState(() {});
                         },
                       ),
+                      SizedBox(width: 20,)
                     ],
                   ),
                 );
