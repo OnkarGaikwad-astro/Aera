@@ -312,7 +312,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                       ),
                       SizedBox(width: 10),
                       SizedBox(
-                        width: 210,
+                        width: 150,
                         child: Column(
                           children: [
                             Text(
@@ -332,13 +332,18 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                         ),
                       ),
                       Switch(
+                        // inactiveThumbColor: kInputBorder,
+                        inactiveTrackColor: kBackground,
+                        activeColor: const Color.fromARGB(255, 44, 183, 248),
                         value: isollama,
                         onChanged: (value) {
+                          print("ollama");
                           isollama = value;
+                          print(isollama);
                           setState(() {});
                         },
                       ),
-                      SizedBox(width: 20,)
+                      // SizedBox(width: 10,)
                     ],
                   ),
                 );
@@ -1406,23 +1411,30 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     print("asking 🚀🚀");
     String res = "Error";
     if (isollama) {
-      final url = Uri.parse(
-        "https://heliographic-arthromeric-sharika.ngrok-free.dev/api/generate",
-      );
+      final url = Uri.parse("https://api.groq.com/openai/v1/chat/completions");
       final response = await http.post(
         url,
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization":
+              "Bearer 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",
+        },
         body: jsonEncode({
-          {
-            "model": "codellama",
-            "prompt":
-                prompt +
-                " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
-            "stream": false,
-          },
+          "model": "llama-3.1-8b-instant",
+          "messages": [
+            {
+              "role": "user",
+              "content":
+                  prompt +
+                  " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
+            },
+          ],
         }),
       );
-      res = jsonDecode(response.body);
+      res = jsonDecode(
+        response.body,
+      )["response"]["choices"][0]["message"]["content"];
+      print(res);
     } else {
       for (String apiKey in api_keys.value) {
         final url = Uri.parse(
@@ -1472,6 +1484,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
         }
       }
     }
+    print(res);
     send_response(res);
     setState(() {});
   }
