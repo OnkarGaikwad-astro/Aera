@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Aera/add_contact.dart';
 import 'package:Aera/chat_page.dart';
 import 'package:Aera/chatbot_page.dart';
@@ -22,6 +24,7 @@ import 'package:hive/hive.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,8 +33,11 @@ bool isdark = true;
 late String your_name;
 late RealtimeChannel presenceChannel;
 late RealtimeChannel ContactChannel;
+File? selectedImage;
 Map<String, bool> onlineUsers = {};
 late String name_change;
+bool readonly = true;
+
 class MyHomePage extends StatefulWidget {
   final VoidCallback toggleTheme;
   const MyHomePage({super.key, required this.toggleTheme});
@@ -178,14 +184,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                         final double dpr = MediaQuery.of(
                                           context,
                                         ).devicePixelRatio;
-                  
+
                                         String highQualityUrl(String url) {
                                           return url.replaceAll(
                                             RegExp(r's\d+-c'),
                                             's800-c',
                                           );
                                         }
-                  
+
                                         return Container(
                                           height: 330,
                                           padding: const EdgeInsets.all(2),
@@ -209,28 +215,38 @@ class _MyHomePageState extends State<MyHomePage> {
                                                       filterQuality:
                                                           FilterQuality.high,
                                                       memCacheWidth:
-                                                          (imageSize * dpr).round(),
+                                                          (imageSize * dpr)
+                                                              .round(),
                                                       memCacheHeight:
-                                                          (imageSize * dpr).round(),
-                                                      fadeInDuration: Duration.zero,
+                                                          (imageSize * dpr)
+                                                              .round(),
+                                                      fadeInDuration:
+                                                          Duration.zero,
                                                       fadeOutDuration:
                                                           Duration.zero,
-                                                      placeholder: (context, url) =>
-                                                          const SizedBox(
+                                                      placeholder:
+                                                          (
+                                                            context,
+                                                            url,
+                                                          ) => const SizedBox(
                                                             height: 300,
                                                             child: Center(
                                                               child:
                                                                   CircularProgressIndicator(
-                                                                    strokeWidth: 2,
+                                                                    strokeWidth:
+                                                                        2,
                                                                   ),
                                                             ),
                                                           ),
                                                       errorWidget:
-                                                          (context, url, error) =>
-                                                              const Icon(
-                                                                Icons.broken_image,
-                                                                size: 40,
-                                                              ),
+                                                          (
+                                                            context,
+                                                            url,
+                                                            error,
+                                                          ) => const Icon(
+                                                            Icons.broken_image,
+                                                            size: 40,
+                                                          ),
                                                     ),
                                                   ),
                                                 ),
@@ -266,16 +282,18 @@ class _MyHomePageState extends State<MyHomePage> {
                                         fit: BoxFit.cover,
                                         fadeInDuration: Duration.zero,
                                         fadeOutDuration: Duration.zero,
-                                  
-                                        placeholder: (context, url) => const Center(
-                                          child: SizedBox(
-                                            height: 20,
-                                            width: 20,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
+
+                                        placeholder: (context, url) =>
+                                            const Center(
+                                              child: SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                    ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
                                         errorWidget: (context, url, error) =>
                                             const Icon(Icons.broken_image),
                                       ),
@@ -355,8 +373,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         //         : const Color.fromARGB(255, 72, 71, 71),
                         //   ),
                         // ),
-                        SizedBox(width: 10,),
-                     
+                        SizedBox(width: 10),
+
                         // SizedBox(width: 25),
                         // !contacts["contacts"][num]["msg_seen"]
                         //     ? Text("🚀", style: TextStyle(fontSize: 15))
@@ -369,29 +387,22 @@ class _MyHomePageState extends State<MyHomePage> {
                         //     : SizedBox.shrink(),
                       ],
                     ),
-                  ),  isOnline && all_contacts.value["contacts"][num]["id"]!=user? Positioned(
-                                left: 0,
-                                top: 0,
-                                child: Icon(
-                                      shadows: [
-                                        Shadow(
-                                          blurRadius: 10,
-                                          color: Colors.teal,
-                                        ),
-                                      ],
-                                      size: 20,
-                                      Icons.circle_sharp,
-                                      color: const Color.fromARGB(
-                                        255,
-                                        0,
-                                        255,
-                                        106,
-                                      ),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              )
-                                  : SizedBox.shrink(),
-
+                  ),
+                  isOnline && all_contacts.value["contacts"][num]["id"] != user
+                      ? Positioned(
+                          left: 0,
+                          top: 0,
+                          child: Icon(
+                            shadows: [
+                              Shadow(blurRadius: 10, color: Colors.teal),
+                            ],
+                            size: 20,
+                            Icons.circle_sharp,
+                            color: const Color.fromARGB(255, 0, 255, 106),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : SizedBox.shrink(),
                 ],
               ),
             ),
@@ -419,11 +430,9 @@ class _MyHomePageState extends State<MyHomePage> {
     print("played");
   }
 
-
-
-Future <void>userpres()async{
-  await user_contacts();
- final contacts = all_contacts.value["contacts"] as List ?? [];
+  Future<void> userpres() async {
+    await user_contacts();
+    final contacts = all_contacts.value["contacts"] as List ?? [];
     final ids = contacts
         .map((c) => c["id"])
         .where((id) => id != null && id.toString().isNotEmpty)
@@ -458,7 +467,7 @@ Future <void>userpres()async{
         .where((id) => id != null && id.toString().isNotEmpty)
         .toList();
 
-        ContactChannel = Supabase.instance.client
+    ContactChannel = Supabase.instance.client
         .channel('last_message')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
@@ -469,18 +478,16 @@ Future <void>userpres()async{
             column: 'chat_id',
             value: chatids,
           ),
-          callback: (payload) async{
+          callback: (payload) async {
             print("🚀🚀🚀🚀🚀🚀🚀 ");
             final data = payload.newRecord;
             await user_contacts();
             all_chats_list();
-            setState(() {
-            });
+            setState(() {});
           },
         )
-        .subscribe(); 
-}
-
+        .subscribe();
+  }
 
   Future<void> all_chats_list() async {
     final email = FirebaseAuth.instance.currentUser?.email;
@@ -490,14 +497,12 @@ Future <void>userpres()async{
     setState(() {});
   }
 
-Future<void> fetch_on_contacts()async{
-  final onn = await chatApi.on_contacts();
-  onlineUsers = onn ;
-  print(onn);
-  setState(() {
-  });
-}
-
+  Future<void> fetch_on_contacts() async {
+    final onn = await chatApi.on_contacts();
+    onlineUsers = onn;
+    print(onn);
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -509,7 +514,7 @@ Future<void> fetch_on_contacts()async{
     chatApi.savefcm();
     if (Hive.box("aurex_api").get("keys") != null) {
       api_keys.value = Hive.box("aurex_api").get("keys");
-    }  
+    }
 
     isdark = Hive.box("isdark").get("isDark") ?? true;
     Hive.box("isdark").put("isDark", isdark);
@@ -525,16 +530,12 @@ Future<void> fetch_on_contacts()async{
     });
   }
 
-
-
   @override
   void dispose() {
     presenceChannel.unsubscribe();
     chatApi.setOffline();
     super.dispose();
   }
-
-
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -546,92 +547,188 @@ Future<void> fetch_on_contacts()async{
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController namechange = TextEditingController();
-    bool editnamechange = false ;
+    namechange.text = FirebaseAuth.instance.currentUser!.displayName ?? "Aera";
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       drawerEdgeDragWidth: 200,
 
       drawer: SafeArea(
         child: Drawer(
-          backgroundColor:kInputBorder,
+          backgroundColor: kInputBorder,
           width: 300,
           child: Column(
             children: [
               SizedBox(height: 20),
-              ClipRRect(
-                borderRadius: BorderRadiusGeometry.circular(20),
-                child: CachedNetworkImage(
-                  filterQuality: FilterQuality.high,
-                  imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(
-                    child: SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        padding: EdgeInsets.all(5),
-                        color: Colors.black,
-                        constraints: BoxConstraints(
-                          minWidth: 20,
-                          minHeight: 20,
+              Stack(
+                children: [
+                  Container(
+                    height: 100,
+                    child: ClipRRect(
+                      borderRadius: BorderRadiusGeometry.circular(20),
+                      child: CachedNetworkImage(
+                        filterQuality: FilterQuality.high,
+                        imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              padding: EdgeInsets.all(5),
+                              color: Colors.black,
+                              constraints: BoxConstraints(
+                                minWidth: 20,
+                                minHeight: 20,
+                              ),
+                            ),
+                          ),
                         ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.broken_image),
+                        fadeInDuration: Duration.zero,
+                        fadeOutDuration: Duration.zero,
                       ),
                     ),
                   ),
-                  errorWidget: (context, url, error) =>
-                      const Icon(Icons.broken_image),
-                  fadeInDuration: Duration.zero,
-                  fadeOutDuration: Duration.zero,
-                ),
+                  Positioned(
+                    right: -5,
+                    top: -5,
+                    child: IconButton(
+                      onPressed: () async {
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user == null) {
+                          throw Exception('User not logged in');
+                        }
+                        HapticFeedback.selectionClick();
+                        final File? image = await pickImageFromGallery();
+                        if (image != null) {
+                          setState(() {
+                            selectedImage = image;
+                          });
+                        }
+                        final bytes = await selectedImage!.readAsBytes();
+                        final url = await chatApi.uploadImageBase64(
+                          base64Encode(bytes),
+                        );
+                        print(url);
+                        await FirebaseAuth.instance.currentUser!.updatePhotoURL(
+                          url,
+                        );
+                        setState(() {});
+                        await Supabase.instance.client
+                            .from('users')
+                            .update({
+                              'user_id': user.email,
+                              'profile_pic': url,
+                            })
+                            .eq('user_id', user.email!);
+                      },
+                      icon: Icon(Icons.edit, size: 25, color: Colors.black),
+                    ),
+                  ),
+                ],
               ),
-              // SizedBox(height: 10,),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Container(width: 100,height: 35,decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: kTextHint),child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  // Text(FirebaseAuth.instance.currentUser!.displayName ?? "astro",style: GoogleFonts.josefinSans(color: const Color.fromARGB(255, 216, 240, 217)),),
-                  child: TextField(enabled:editnamechange,controller: namechange,decoration: InputDecoration(
-                    hint: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(FirebaseAuth.instance.currentUser!.displayName ?? "astro",style: GoogleFonts.josefinSans(color: const Color.fromARGB(255, 216, 240, 217)),),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 210,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(17),
+                        color: const Color.fromARGB(118, 110, 156, 176),
+                      ),
+                      child: Center(
+                        child: TextField(
+                          // textAlign: TextAlign.center,
+                          style: GoogleFonts.josefinSans(
+                            color: const Color.fromARGB(255, 223, 255, 224),
+                          ),
+                          cursorColor: Colors.teal,
+                          maxLines: 1,
+                          enabled: true,
+                          readOnly: readonly,
+                          controller: namechange,
+                          decoration: InputDecoration(
+                            // filled: true,
+                            isDense: true,
+                            prefixIcon: IconButton(
+                              onPressed: () {
+                                readonly = !readonly;
+                                print(readonly);
+                                setState(() {});
+                              },
+                              icon: Icon(
+                                Icons.mode_edit_outline_outlined,
+                                color: const Color.fromARGB(181, 120, 253, 239),
+                              ),
+                            ),
+                            disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(17),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(17),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(17),
+                              borderSide: BorderSide(
+                                color: const Color.fromARGB(0, 255, 255, 255),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),),
-                )),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  await FirebaseAuth.instance.currentUser!.updateDisplayName(
-                    "Onkar",
-                  );
-                  print("Name changed");
-                  print(FirebaseAuth.instance.currentUser!.displayName);
-                  setState(() {});
-                },
-                child: Text("Change name"),
-              ),
-
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return Lottiepage();
+                    SizedBox(width: 10),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 7,
+                        backgroundColor: const Color.fromARGB(255, 58, 83, 134),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(15),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user == null) {
+                          throw Exception('User not logged in');
+                        }
+                        readonly = true;
+                        await FirebaseAuth.instance.currentUser!
+                            .updateDisplayName(namechange.text);
+                        setState(() {});
+                        await Supabase.instance.client
+                            .from('users')
+                            .update({
+                              'user_id': user.email,
+                              'name': namechange.text,
+                            })
+                            .eq('user_id', user.email!);
+                        print("Name changed");
+                        print(FirebaseAuth.instance.currentUser!.displayName);
                       },
+                      child: Icon(
+                        Icons.task_alt,
+                        color: const Color.fromARGB(255, 82, 255, 160),
+                        size: 20,
+                      ),
                     ),
-                  );
-                },
-                child: Text("lottie"),
+                  ],
+                ),
               ),
-
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 10,
+                  backgroundColor: const Color.fromARGB(148, 192, 228, 255),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(15),
+                  ),
+                ),
                 onPressed: () async {
                   chatApi.setOffline();
                   await signOut();
@@ -645,7 +742,13 @@ Future<void> fetch_on_contacts()async{
                     );
                   }
                 },
-                child: Text("Logout !"),
+                child: Text(
+                  "Logout !",
+                  style: GoogleFonts.josefinSans(
+                    fontWeight: FontWeight.w600,
+                    color: const Color.fromARGB(215, 248, 3, 3),
+                  ),
+                ),
               ),
             ],
           ),
@@ -795,5 +898,18 @@ Future<void> fetch_on_contacts()async{
         },
       ),
     );
+  }
+
+  ///// image picker /////
+  Future<File?> pickImageFromGallery() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      imageQuality: 20,
+      source: ImageSource.gallery,
+    );
+    if (image != null) {
+      return File(image.path);
+    }
+    return null;
   }
 }

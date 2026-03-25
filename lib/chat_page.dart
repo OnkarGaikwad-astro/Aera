@@ -741,7 +741,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                           )
                         : SizedBox.shrink())
                   : SizedBox.shrink(),
-
               Positioned(
                 bottom: 15,
                 left: 0,

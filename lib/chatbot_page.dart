@@ -117,25 +117,21 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
   ///////   send message   ////
   Future<void> send_message(String msg, String type) async {
     if (msg == "") return;
-
-    gemini(msg);
     final email = await FirebaseAuth.instance.currentUser?.email;
     otherUserTyping = true;
     await chatApi.addMsgforchatbot(email!, "chatbot", msg, type, your_name);
-
     await all_chats_list();
+    temp_msg = "";
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
+    await gemini(msg);
+    print("Response received");
   }
 
   Future<void> send_reply_message(String msg, String type) async {
     if (msg == "") return;
     otherUserTyping = true;
-    gemini(
-      "{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information" +
-          msg,
-    );
     final email = await FirebaseAuth.instance.currentUser?.email;
     await chatApi.addMsgforchatbot(
       email!,
@@ -144,11 +140,15 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
       type,
       your_name,
     );
-
     await all_chats_list();
+    temp_msg = "";
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
+    await gemini(
+      "{ ${chat["messages"][replyid]["msg"].toString().split("rpy").last} } in the curly bracket all text is from another person and i was replying it so based on that text answer me following question dont give other information" +
+          msg,
+    );
   }
 
   ///// sender_last_seen  /////
@@ -1414,7 +1414,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
         headers: {
           "Content-Type": "application/json",
           "Authorization":
-              "Bearer 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",
+              "Bearer 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",
         },
         body: jsonEncode({
           "model": "llama-3.1-8b-instant",
@@ -1422,8 +1422,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
             {
               "role": "user",
               "content":
-                  prompt +
-                  " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
+                  prompt
             },
           ],
         }),
@@ -1483,7 +1482,8 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     }
     print(res);
     send_response(res);
-    setState(() {});
+    // otherUserTyping = false;
+    // setState(() {});
   }
 
   Future<void> send_response(String msg) async {
@@ -1496,6 +1496,9 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
       "Aurex AI",
     );
     otherUserTyping = false;
+    // setState(() {
+      
+    // });
     receivedsound();
     await all_chats_list();
     user_contact();
