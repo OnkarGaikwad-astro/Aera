@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:Aera/essentials/data.dart';
+import 'package:Aera/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
@@ -534,6 +535,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
   ) async {
     // final chatId = buildChatId(sender, receiver);
     // updatelastmsg(chatId, msg);
+    final embed = emb.generateEmbedding(msg);
     final members =
         all_contacts.value["contacts"][all_contacts.value["contacts"]
             .indexWhere((e) => e['chat_id'] == chatId)]["members"];
@@ -541,7 +543,6 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     for (final i in members) {
       seen_data[i] = sender == i ? true : false;
     }
-
     final name = (sender != "Aurex AI")
         ? await FirebaseAuth.instance.currentUser!.displayName
         : "Aurex AI";
@@ -554,6 +555,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "type": type,
       "msg_seen": jsonEncode(seen_data),
       "sender_name": name,
+      "embedding":embed
     });
 
     await _db
@@ -593,6 +595,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     String type,
     String sender_name,
   ) async {
+    final embed = emb.generateEmbedding(msg);
     final chatId = buildChatId(sender, receiver);
     updatelastmsg(chatId, msg);
     final members = ["chatbot", sender];
@@ -605,6 +608,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "sender_name": sender_name,
       "type": type,
       'msg': msg,
+      "embedding":embed
     });
   }
 
@@ -615,6 +619,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     String type,
     bool bot,
   ) async {
+    final embed = emb.generateEmbedding(msg);
     // updatelastmsg(chatId, msg);
     final profpic = bot
         ? "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/ai.png"
@@ -641,6 +646,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "members": members,
       "msg_seen": seen_data,
       'msg': msg,
+      "embedding":embed
     });
 
     await _db
@@ -680,6 +686,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
         .from('messages')
         .select('msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen')
         .eq("chat_id", chatId)
+        .contains('members', [currentUser])
         .order('timestamp', ascending: true);
     final List<Map<String, dynamic>> messages = rows.map((m) {
       final sender = m['sender_id'] as String;
@@ -718,8 +725,9 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
         .select(
           'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen',
         )
-        .or(
-          'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
+        .or('members.cs.{${userId}}',
+        // .or(
+        //   'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
         )
         .order('timestamp', ascending: true);
     final Map<String, List<Map<String, dynamic>>> chatMap = {};
@@ -831,13 +839,16 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
   }
 
   ///// delete for user only   ////
-  Future<void> deleteMsgforusere(String chatId, int convoId) async {
-    await _db
-        .from('messages')
-        .delete()
-        .eq('conversation_id', convoId)
-        .eq('chat_id', chatId);
-    print("object");
+  Future<void> deleteMsgforuser(String chatId, int convoId) async {
+    final List<dynamic> members = [];
+    String User = FirebaseAuth.instance.currentUser!.email??"";
+    final response = await _db.from("messages").select("members").eq("chat_id", chatId).eq("conversation_id", convoId);
+    for(final i in response[0]["members"]){
+      if(i!=User)
+      members.add(i);
+    }
+    await _db.from("messages").update({"members":members}).eq("chat_id",chatId).eq("conversation_id",convoId);
+    print(members);
   }
 
   ////   clear chat  /////

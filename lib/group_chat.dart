@@ -979,6 +979,16 @@ Future<void>Markmsgseen()async{
                 ),
               ),
               PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "reply",
                 child: Row(
                   children: [
@@ -1009,7 +1019,7 @@ Future<void>Markmsgseen()async{
                   children: [
                     SizedBox(width: 30),
                     Text(
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                       style: TextStyle(
                         color: Colors.blueGrey,
                         fontFamily: "times new roman",
@@ -1022,6 +1032,10 @@ Future<void>Markmsgseen()async{
           ).then((value) {
             if (value == "delete") {
               delete_msg(chat["messages"][no]["conversation_id"]);
+            }
+            ;
+            if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
             }
             ;
             if (value == "Copy") {
@@ -1166,7 +1180,7 @@ Future<void>Markmsgseen()async{
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.left,
-                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[0]}:${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0].split(":")[1]} ",
+                        "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                         style: GoogleFonts.spaceGrotesk(
                           fontSize: 10,
                           color: Colors.white,
@@ -1351,6 +1365,16 @@ Future<void>Markmsgseen()async{
                 ),
               ),
               PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "reply",
                 child: Row(
                   children: [
@@ -1381,7 +1405,7 @@ Future<void>Markmsgseen()async{
                   children: [
                     SizedBox(width: 30),
                     Text(
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                       style: TextStyle(
                         color: Colors.blueGrey,
                         fontFamily: "times new roman",
@@ -1396,6 +1420,9 @@ Future<void>Markmsgseen()async{
               delete_msg(chat["messages"][no]["conversation_id"]);
             }
             ;
+            if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
+            }
             if (value == "Copy") {
               Clipboard.setData(ClipboardData(text: msg[2]));
             }
@@ -1676,7 +1703,16 @@ Future<void>Markmsgseen()async{
                 ],
               ),
             ),
-
+            PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
             PopupMenuItem(
               value: "reply",
               child: Row(
@@ -1702,7 +1738,7 @@ Future<void>Markmsgseen()async{
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -1717,6 +1753,9 @@ Future<void>Markmsgseen()async{
             delete_msg(chat["messages"][no]["conversation_id"]);
             print("deleted");
           }
+          if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
+            }
           if (value == "save_img") {
             await saveImageToGallery(
               chat["messages"][no]["msg"]
@@ -1926,6 +1965,16 @@ Future<void>Markmsgseen()async{
               ),
             ),
             PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+            PopupMenuItem(
               value: "reply",
               child: Row(
                 children: [
@@ -1953,7 +2002,7 @@ Future<void>Markmsgseen()async{
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -1967,6 +2016,9 @@ Future<void>Markmsgseen()async{
           if (value == "delete") {
             delete_msg(chat["messages"][no]["conversation_id"]);
           }
+          if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
+            }
           if (value == "save_img") {
             await saveImageToGallery(
               chat["messages"][no]["msg"]
@@ -2191,6 +2243,16 @@ Future<void>Markmsgseen()async{
               ),
             ),
             PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+            PopupMenuItem(
               value: "reply",
               child: Row(
                 children: [
@@ -2221,7 +2283,7 @@ Future<void>Markmsgseen()async{
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -2236,6 +2298,9 @@ Future<void>Markmsgseen()async{
             delete_msg(chat["messages"][no]["conversation_id"]);
           }
           ;
+          if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
+            }
           if (value == "Copy") {
             Clipboard.setData(ClipboardData(text: chat["messages"][no]["msg"]));
           }
@@ -2380,6 +2445,16 @@ Future<void>Markmsgseen()async{
               ),
             ),
             PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+            PopupMenuItem(
               value: "reply",
               child: Row(
                 children: [
@@ -2410,7 +2485,7 @@ Future<void>Markmsgseen()async{
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -2425,6 +2500,9 @@ Future<void>Markmsgseen()async{
             delete_msg(chat["messages"][no]["conversation_id"]);
           }
           ;
+          if (value == "delete for me") {
+              chatApi.deleteMsgforuser(widget.ID,chat["messages"][no]["conversation_id"]);
+            }
           if (value == "Copy") {
             Clipboard.setData(ClipboardData(text: chat["messages"][no]["msg"]));
           }

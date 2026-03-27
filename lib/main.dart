@@ -3,6 +3,7 @@ import 'package:Aera/chat_page.dart';
 import 'package:Aera/essentials/data.dart';
 import 'package:Aera/essentials/functions.dart';
 import 'package:Aera/login_page.dart';
+import 'package:Aera/model/embedding_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,7 +21,7 @@ final chatApi = SupabaseChatApi(
               );
 
 bool isdark = true;
-
+final emb = EmbeddingService();
 final FlutterLocalNotificationsPlugin fln = FlutterLocalNotificationsPlugin();
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -123,11 +124,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  
+    Future<void> initEmbedding() async {
+    await emb.init();
+    print("🚀🚀 initiated 🚀🚀");
+  }
 
   @override
   void initState() {
     super.initState();
+    initEmbedding();
     user_contacts();
     chatApi.fetch_api();
     all_chats_list();

@@ -24,6 +24,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool Isdark = true;
+bool isvec = true;
 bool isSelecting = false;
 List selected_items = [];
 bool imagesent = true;
@@ -33,6 +34,7 @@ late RealtimeChannel presenceChannel;
 bool isOnline = false;
 String your_name = "";
 File? selectedImage;
+
 class ChatPage extends StatefulWidget {
   final dynamic ID;
   const ChatPage({super.key, required this.ID});
@@ -130,7 +132,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     all_msg_list.value["chats"][chatId] = chat["chat"];
     print(all_msg_list.value["chats"][chatId]);
     final box = Hive.box('messages');
-    await box.put(chatId,all_msg_list.value["chats"][chatId]);
+    await box.put(chatId, all_msg_list.value["chats"][chatId]);
     print("object");
     setState(() {});
     await fetch_chat();
@@ -613,6 +615,17 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 },
                 itemBuilder: (context) => [
                   PopupMenuItem(value: "clear", child: Text("Clear Chat")),
+                  PopupMenuItem(
+                    value: "vec",
+                    child: Switch(
+                      value: isvec,
+                      onChanged: (value) {
+                        isvec = value;
+                        Navigator.pop(context);
+                        setState(() {});
+                      },
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -923,7 +936,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                   isreplying = false;
                                   setState(() {});
                                   print("object 1");
-                                 
                                 } else if (selectedImage != null) {
                                   await uploadImageBase64(selectedImage!, msg);
                                 } else {
@@ -1121,6 +1133,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ),
               ),
               PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "reply",
                 child: Row(
                   children: [
@@ -1151,7 +1173,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   children: [
                     SizedBox(width: 30),
                     Text(
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                       style: TextStyle(
                         color: Colors.blueGrey,
                         fontFamily: "times new roman",
@@ -1164,6 +1186,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           ).then((value) {
             if (value == "delete") {
               delete_msg(chat["messages"][no]["conversation_id"]);
+            }
+            ;
+            if (value == "delete for me") {
+              chatApi.deleteMsgforuser(
+                chatId,
+                chat["messages"][no]["conversation_id"],
+              );
             }
             ;
             if (value == "Copy") {
@@ -1270,7 +1299,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                         msg[1],
                                         softWrap: true,
                                         style: GoogleFonts.josefinSans(
-                                          color: Colors.white
+                                          color: Colors.white,
                                         ),
                                       ),
                               ),
@@ -1305,7 +1334,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     Align(
                       alignment: Alignment.topRight,
                       child: Padding(
-                        padding: const EdgeInsets.only(right:5.0),
+                        padding: const EdgeInsets.only(right: 5.0),
                         child: Text(
                           softWrap: true,
                           overflow: TextOverflow.ellipsis,
@@ -1381,6 +1410,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ),
               ),
               PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "reply",
                 child: Row(
                   children: [
@@ -1411,7 +1450,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   children: [
                     SizedBox(width: 30),
                     Text(
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                       style: TextStyle(
                         color: Colors.blueGrey,
                         fontFamily: "times new roman",
@@ -1424,6 +1463,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           ).then((value) {
             if (value == "delete") {
               delete_msg(chat["messages"][no]["conversation_id"]);
+            }
+            ;
+            if (value == "delete for me") {
+              chatApi.deleteMsgforuser(
+                chatId,
+                chat["messages"][no]["conversation_id"],
+              );
             }
             ;
             if (value == "Copy") {
@@ -1531,7 +1577,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                         msg[1],
                                         softWrap: true,
                                         style: GoogleFonts.josefinSans(
-                                          color: Colors.white
+                                          color: Colors.white,
                                         ),
                                       ),
                               ),
@@ -1567,7 +1613,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                     Align(
                       alignment: Alignment.topLeft,
                       child: Padding(
-                        padding: const EdgeInsets.only(left:5.0),
+                        padding: const EdgeInsets.only(left: 5.0),
                         child: Text(
                           softWrap: true,
                           overflow: TextOverflow.ellipsis,
@@ -1667,7 +1713,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ],
               ),
             ),
-
+            PopupMenuItem(
+              value: "delete for me",
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red),
+                  SizedBox(width: 10),
+                  Text("Delete For me"),
+                ],
+              ),
+            ),
             PopupMenuItem(
               value: "reply",
               child: Row(
@@ -1693,7 +1748,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -1708,6 +1763,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             delete_msg(chat["messages"][no]["conversation_id"]);
             print("deleted");
           }
+          if (value == "delete for me") {
+            chatApi.deleteMsgforuser(
+              chatId,
+              chat["messages"][no]["conversation_id"],
+            );
+          }
+          ;
           if (value == "save_img") {
             await saveImageToGallery(
               chat["messages"][no]["msg"]
@@ -1933,6 +1995,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
               ),
             ),
             PopupMenuItem(
+              value: "delete for me",
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red),
+                  SizedBox(width: 10),
+                  Text("Delete For me"),
+                ],
+              ),
+            ),
+            PopupMenuItem(
               value: "reply",
               child: Row(
                 children: [
@@ -1960,7 +2032,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -1974,6 +2046,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           if (value == "delete") {
             delete_msg(chat["messages"][no]["conversation_id"]);
           }
+          if (value == "delete for me") {
+            chatApi.deleteMsgforuser(
+              chatId,
+              chat["messages"][no]["conversation_id"],
+            );
+          }
+          ;
           if (value == "save_img") {
             await saveImageToGallery(
               chat["messages"][no]["msg"]
@@ -2198,6 +2277,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
               ),
             ),
             PopupMenuItem(
+              value: "delete for me",
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red),
+                  SizedBox(width: 10),
+                  Text("Delete For me"),
+                ],
+              ),
+            ),
+            PopupMenuItem(
               value: "reply",
               child: Row(
                 children: [
@@ -2228,7 +2317,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 children: [
                   SizedBox(width: 30),
                   Text(
-                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                    "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                     style: TextStyle(
                       color: Colors.blueGrey,
                       fontFamily: "times new roman",
@@ -2241,6 +2330,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
         ).then((value) {
           if (value == "delete") {
             delete_msg(chat["messages"][no]["conversation_id"]);
+          }
+          ;
+          if (value == "delete for me") {
+            chatApi.deleteMsgforuser(
+              chatId,
+              chat["messages"][no]["conversation_id"],
+            );
           }
           ;
           if (value == "Copy") {
@@ -2361,6 +2457,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 ),
               ),
               PopupMenuItem(
+                value: "delete for me",
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 10),
+                    Text("Delete For me"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "reply",
                 child: Row(
                   children: [
@@ -2391,7 +2497,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                   children: [
                     SizedBox(width: 30),
                     Text(
-                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]} \n ${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[1].split(".")[0]} ",
+                      "${DateTime.parse(chat["messages"][no]["timestamp"]).toLocal().toString().split(" ")[0]}",
                       style: TextStyle(
                         color: Colors.blueGrey,
                         fontFamily: "times new roman",
@@ -2404,6 +2510,13 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           ).then((value) {
             if (value == "delete") {
               delete_msg(chat["messages"][no]["conversation_id"]);
+            }
+            ;
+            if (value == "delete for me") {
+              chatApi.deleteMsgforuser(
+                chatId,
+                chat["messages"][no]["conversation_id"],
+              );
             }
             ;
             if (value == "Copy") {
@@ -2610,6 +2723,30 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
   Future<void> gemini(String prompt) async {
     chatApi.fetch_api();
+    String vec = "";
+    if (isvec) {
+      final queryEmbedding = await emb.generateEmbedding(
+        prompt.split("@Aurex")[1],
+      );
+      final resp = await Supabase.instance.client.rpc(
+        'match_messages',
+        params: {
+          'query_embedding': queryEmbedding,
+          'match_count': 10,
+          "chat_id_filter": chatId,
+        },
+      );
+      vec = resp.toString();
+    } else {
+      final similars = await Supabase.instance.client
+          .from('messages')
+          .select('msg')
+          .eq('chat_id', chatId)
+          .filter('msg', 'ilike', '%${prompt.split("@Aurex")[1]}%')
+          .limit(10);
+      vec = similars.toString();
+    }
+    print("\n\n\n\n $vec  \n\n\n");
     print("asking 🚀🚀");
     String res = "Error";
     for (String apiKey in api_keys.value) {
@@ -2627,7 +2764,9 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                 "parts": [
                   {
                     "text":
-                        prompt +
+                        prompt.split("@Aurex")[1] +
+                        vec +
+                        "among the given pair of msg and similarities i have ordered it from my previous convo and find most similar via vectors so answer using this to the question and ignore the sentence which contains @Aurex" +
                         " imagine u as an ai build by astro and named Aurex of u and u are an commercial ai mode build for an app named aera, dont always mention all info about u just give answers which was asked and must have frendly tone dont give long info give just main info",
                   },
                 ],

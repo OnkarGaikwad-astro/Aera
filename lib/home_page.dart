@@ -38,9 +38,9 @@ File? selectedImage;
 Map<String, bool> onlineUsers = {};
 late String name_change;
 bool readonly = true;
- String vector = "onkar";
+String vector = "onkar";
+
 class MyHomePage extends StatefulWidget {
- 
   final VoidCallback toggleTheme;
   MyHomePage({super.key, required this.toggleTheme});
   @override
@@ -48,8 +48,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-   final emb = EmbeddingService();
+  bool isReady = false;
   /////////    refresh    ///////
 
   Future<void> _refresh() async {
@@ -508,9 +507,17 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {});
   }
 
+  Future<void> initEmbedding() async {
+    await emb.init();
+    setState(() {
+      isReady = true;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    // initEmbedding();
     chatApi.fetch_api();
     fetch_on_contacts();
     all_chats_list();
@@ -556,7 +563,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController namechange = TextEditingController();
     final TextEditingController vecontroller = TextEditingController();
-   
+
     namechange.text = FirebaseAuth.instance.currentUser!.displayName ?? "Aera";
     return Scaffold(
       drawerEnableOpenDragGesture: false,
@@ -627,10 +634,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         setState(() {});
                         await Supabase.instance.client
                             .from('users')
-                            .update({
-                              'user_id': user.email,
-                              'profile_pic': url,
-                            })
+                            .update({'user_id': user.email, 'profile_pic': url})
                             .eq('user_id', user.email!);
                       },
                       icon: Icon(Icons.edit, size: 25, color: Colors.black),
@@ -756,21 +760,39 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              TextField(
-                controller: vecontroller,
-                onSubmitted: (value) async{
-                  await emb.init();
-                  final vectorno = await emb.generateEmbedding("Hello world");
-                  vector = vectorno.length.toString();
-                  setState(() {
-                    
-                  });
+              ElevatedButton(
+                onPressed: () async {
+                  String query = "i am onkar";
+                  final queryEmbedding = await emb.generateEmbedding(query);
+                  final response = await Supabase.instance.client.rpc(
+                    'match_messages',
+                    params: {
+                      'query_embedding': queryEmbedding,
+                      'match_count': 5,
+                      "chat_id_filter":"groupchat"
+                    },
+                  );
+
+                  print(response);
                 },
+                child: Text("get"),
               ),
-              Container(
-                color: kAccentVariant,
-                child: Text(vector),
-              )
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await Supabase.instance.client
+                      .from('messages')
+                      .select('msg')
+                      .filter('msg', 'ilike', '%name%')
+                      .limit(5);
+
+                  print(result.toString());
+                },
+                child: Text("Press me"),
+              ),
+              ElevatedButton(onPressed: () {
+                final a = "@Aurex my name is onkar" ;
+                print(a.split("@Aurex")[1]);
+              }, child: Text("data"))
             ],
           ),
         ),
@@ -807,15 +829,17 @@ class _MyHomePageState extends State<MyHomePage> {
           InkWell(
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
-              HapticFeedback.heavyImpact();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) {
-                    return ChatbotPage();
-                  },
-                ),
-              );
+              // HapticFeedback.heavyImpact();
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) {
+              //       return ChatbotPage();
+              //     },
+              //   ),
+              // );
+              final a = await chatApi.deleteMsgforuser("onkar.gaikwad@iitgn.ac.in__onkargaikwad3319@gmail.com", 1258);
+              // print(a);
             },
             child: CircleAvatar(
               maxRadius: 15,
