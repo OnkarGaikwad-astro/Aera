@@ -126,13 +126,16 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: 60),
             Center(
-              child: LottieBuilder.asset(
+              child:FirebaseAuth.instance.currentUser == null ? LottieBuilder.asset(
                 "assets/lotties/Welcome__1.json",
+                height: 250,
+              ):LottieBuilder.asset(
+                "assets/lotties/Welcome_Sticker.json",
                 height: 250,
               ),
             ),
             SizedBox(
-              height: FirebaseAuth.instance.currentUser == null ? 155 : 15,
+              height: FirebaseAuth.instance.currentUser == null ? 115 : 15,
             ),
            
             FirebaseAuth.instance.currentUser == null
@@ -181,38 +184,38 @@ class _LoginPageState extends State<LoginPage> {
                   )
                 : SizedBox.shrink(),
             SizedBox(height: 30),
-            FirebaseAuth.instance.currentUser == null
-                ? SizedBox.shrink()
-                : SizedBox(
-                    height: 60,
-                    width: 350,
-                    child: TextField(
-                      controller: bio_text,
-                      cursorColor: Colors.teal,
-                      decoration: InputDecoration(
-                        hint: Text(
-                          "🚀  Share your cosmic self . . .",
-                          style: GoogleFonts.montaga(
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: const Color.fromARGB(46, 158, 158, 158),
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: (Colors.white)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: (Colors.white)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          borderSide: BorderSide(color: (Colors.white)),
-                        ),
-                      ),
-                    ),
-                  ),
+            // FirebaseAuth.instance.currentUser == null
+            //     ? SizedBox.shrink()
+            //     : SizedBox(
+            //         height: 60,
+            //         width: 350,
+            //         child: TextField(
+            //           controller: bio_text,
+            //           cursorColor: Colors.teal,
+            //           decoration: InputDecoration(
+            //             hint: Text(
+            //               "🚀  Share your cosmic self . . .",
+            //               style: GoogleFonts.montaga(
+            //                 letterSpacing: 1.5,
+            //               ),
+            //             ),
+            //             filled: true,
+            //             fillColor: const Color.fromARGB(46, 158, 158, 158),
+            //             disabledBorder: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(15),
+            //               borderSide: BorderSide(color: (Colors.white)),
+            //             ),
+            //             focusedBorder: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(15),
+            //               borderSide: BorderSide(color: (Colors.white)),
+            //             ),
+            //             enabledBorder: OutlineInputBorder(
+            //               borderRadius: BorderRadius.circular(15),
+            //               borderSide: BorderSide(color: (Colors.white)),
+            //             ),
+            //           ),
+            //         ),
+            //       ),
 
             SizedBox(height: 20),
              FirebaseAuth.instance.currentUser == null? SizedBox.shrink():SizedBox(
@@ -245,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 40),
             SizedBox(
               child: Text(
                 "Across Space 🚀 & Time",

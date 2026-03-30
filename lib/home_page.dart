@@ -39,6 +39,7 @@ Map<String, bool> onlineUsers = {};
 late String name_change;
 bool readonly = true;
 String vector = "onkar";
+bool img_uploaded = true ;
 
 class MyHomePage extends StatefulWidget {
   final VoidCallback toggleTheme;
@@ -563,7 +564,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final isdark = Theme.of(context).brightness == Brightness.dark;
     final TextEditingController namechange = TextEditingController();
     final TextEditingController vecontroller = TextEditingController();
-
+   
     namechange.text = FirebaseAuth.instance.currentUser!.displayName ?? "Aera";
     return Scaffold(
       drawerEnableOpenDragGesture: false,
@@ -576,71 +577,82 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             children: [
               SizedBox(height: 20),
-              Stack(
-                children: [
-                  Container(
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: BorderRadiusGeometry.circular(20),
-                      child: CachedNetworkImage(
-                        filterQuality: FilterQuality.high,
-                        imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const Center(
-                          child: SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              padding: EdgeInsets.all(5),
-                              color: Colors.black,
-                              constraints: BoxConstraints(
-                                minWidth: 20,
-                                minHeight: 20,
+              Container(
+                height: 100,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: AlignmentGeometry.center,
+                      child: ClipRRect(
+                        borderRadius: BorderRadiusGeometry.circular(20),
+                        child: CachedNetworkImage(
+                          filterQuality: FilterQuality.high,
+                          imageUrl: FirebaseAuth.instance.currentUser!.photoURL!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const Center(
+                            child: SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                padding: EdgeInsets.all(5),
+                                color: Colors.black,
+                                constraints: BoxConstraints(
+                                  minWidth: 20,
+                                  minHeight: 20,
+                                ),
                               ),
                             ),
                           ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.broken_image),
+                          fadeInDuration: Duration.zero,
+                          fadeOutDuration: Duration.zero,
                         ),
-                        errorWidget: (context, url, error) =>
-                            const Icon(Icons.broken_image),
-                        fadeInDuration: Duration.zero,
-                        fadeOutDuration: Duration.zero,
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: -5,
-                    top: -5,
-                    child: IconButton(
-                      onPressed: () async {
-                        final user = FirebaseAuth.instance.currentUser;
-                        if (user == null) {
-                          throw Exception('User not logged in');
-                        }
-                        HapticFeedback.selectionClick();
-                        final File? image = await pickImageFromGallery();
-                        if (image != null) {
+                    !img_uploaded?Align(alignment: AlignmentGeometry.center,child: CircularProgressIndicator(color: Colors.black,)):SizedBox.shrink(),
+                    Align(
+                      child: Positioned(
+                      right: -5,
+                      top: -5,
+                      child: IconButton(
+                        onPressed: () async {
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user == null) {
+                            throw Exception('User not logged in');
+                          }
+                          HapticFeedback.selectionClick();
+                          final File? image = await pickImageFromGallery();
+                          if (image != null) {
+                            setState(() {
+                              selectedImage = image;
+                              img_uploaded = false;
+                            });
+                          }
+                          final bytes = await selectedImage!.readAsBytes();
+                          final url = await chatApi.uploadImageBase64(
+                            base64Encode(bytes),
+                          );
+                          
+                          print(url);
+                          await FirebaseAuth.instance.currentUser!.updatePhotoURL(
+                            url,
+                          );
+                          img_uploaded = true;
                           setState(() {
-                            selectedImage = image;
                           });
-                        }
-                        final bytes = await selectedImage!.readAsBytes();
-                        final url = await chatApi.uploadImageBase64(
-                          base64Encode(bytes),
-                        );
-                        print(url);
-                        await FirebaseAuth.instance.currentUser!.updatePhotoURL(
-                          url,
-                        );
-                        setState(() {});
-                        await Supabase.instance.client
-                            .from('users')
-                            .update({'user_id': user.email, 'profile_pic': url})
-                            .eq('user_id', user.email!);
-                      },
-                      icon: Icon(Icons.edit, size: 25, color: Colors.black),
+                          setState(() {});
+                          await Supabase.instance.client
+                              .from('users')
+                              .update({'user_id': user.email, 'profile_pic': url})
+                              .eq('user_id', user.email!);
+                        },
+                        icon: Icon(Icons.edit, size: 35, color: Colors.black),
+                      ),
+                                        ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -760,39 +772,39 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  String query = "i am onkar";
-                  final queryEmbedding = await emb.generateEmbedding(query);
-                  final response = await Supabase.instance.client.rpc(
-                    'match_messages',
-                    params: {
-                      'query_embedding': queryEmbedding,
-                      'match_count': 5,
-                      "chat_id_filter":"groupchat"
-                    },
-                  );
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     String query = "i am onkar";
+              //     final queryEmbedding = await emb.generateEmbedding(query);
+              //     final response = await Supabase.instance.client.rpc(
+              //       'match_messages',
+              //       params: {
+              //         'query_embedding': queryEmbedding,
+              //         'match_count': 5,
+              //         "chat_id_filter":"groupchat"
+              //       },
+              //     );
 
-                  print(response);
-                },
-                child: Text("get"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final result = await Supabase.instance.client
-                      .from('messages')
-                      .select('msg')
-                      .filter('msg', 'ilike', '%name%')
-                      .limit(5);
+              //     print(response);
+              //   },
+              //   child: Text("get"),
+              // ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     final result = await Supabase.instance.client
+              //         .from('messages')
+              //         .select('msg')
+              //         .filter('msg', 'ilike', '%name%')
+              //         .limit(5);
 
-                  print(result.toString());
-                },
-                child: Text("Press me"),
-              ),
-              ElevatedButton(onPressed: () {
-                final a = "@Aurex my name is onkar" ;
-                print(a.split("@Aurex")[1]);
-              }, child: Text("data"))
+              //     print(result.toString());
+              //   },
+              //   child: Text("Press me"),
+              // ),
+              // ElevatedButton(onPressed: () {
+              //   final a = "@Aurex my name is onkar" ;
+              //   print(a.split("@Aurex")[1]);
+              // }, child: Text("data"))
             ],
           ),
         ),

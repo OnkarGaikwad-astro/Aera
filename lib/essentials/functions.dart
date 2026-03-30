@@ -535,7 +535,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
   ) async {
     // final chatId = buildChatId(sender, receiver);
     // updatelastmsg(chatId, msg);
-    final embed = emb.generateEmbedding(msg);
+    // final embed = (sender != "Aurex AI")?emb.generateEmbedding(msg):null;
     final members =
         all_contacts.value["contacts"][all_contacts.value["contacts"]
             .indexWhere((e) => e['chat_id'] == chatId)]["members"];
@@ -555,7 +555,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "type": type,
       "msg_seen": jsonEncode(seen_data),
       "sender_name": name,
-      "embedding":embed
+      // "embedding":embed
     });
 
     await _db
@@ -595,7 +595,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     String type,
     String sender_name,
   ) async {
-    final embed = emb.generateEmbedding(msg);
+    // final embed = emb.generateEmbedding(msg);
     final user = FirebaseAuth.instance.currentUser!.email;
     final chatId = buildChatId(sender, receiver);
     updatelastmsg(chatId, msg);
@@ -609,7 +609,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "sender_name": sender_name,
       "type": type,
       'msg': msg,
-      "embedding":embed
+      // "embedding":embed
     });
   }
 
@@ -620,7 +620,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     String type,
     bool bot,
   ) async {
-    final embed = emb.generateEmbedding(msg);
+    // final embed = emb.generateEmbedding(msg);
     // updatelastmsg(chatId, msg);
     final profpic = bot
         ? "https://qbppenfcbrszswmfmiop.supabase.co/storage/v1/object/public/images/uploads/ai.png"
@@ -647,7 +647,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
       "members": members,
       "msg_seen": seen_data,
       'msg': msg,
-      "embedding":embed
+      // "embedding":embed
     });
 
     await _db

@@ -113,7 +113,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     } else {
       chat = Map<String, dynamic>.from(result);
     }
-    msg_sent = true;
+    // msg_sent = true;
     setState(() {});
   }
 
@@ -123,8 +123,12 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     final email = await FirebaseAuth.instance.currentUser?.email;
     otherUserTyping = true;
     await chatApi.addMsgforchatbot(email!, "chatbot", msg, type, your_name);
-    await all_chats_list();
-    temp_msg = "";
+    setState(() {
+      msg_sent = true;
+      temp_msg = "";
+      isreplying = false;
+      replyid = -1;
+    });
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
@@ -143,8 +147,14 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
       type,
       your_name,
     );
-    await all_chats_list();
-    temp_msg = "";
+    // await all_chats_list();
+    // temp_msg = "";
+    setState(() {
+      msg_sent = true;
+      temp_msg = "";
+      isreplying = false;
+      replyid = -1;
+    });
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");

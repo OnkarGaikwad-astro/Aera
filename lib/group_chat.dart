@@ -89,7 +89,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     } else {
       chat = Map<String, dynamic>.from(result);
     }
-    msg_sent = true;
+    // msg_sent = true;
     setState(() {});
   }
 
@@ -98,8 +98,13 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     final email = await FirebaseAuth.instance.currentUser?.email;
     await chatApi.addMessagegrp(email!, widget.ID, msg, type, false);
     print("📖📖📖📖📖📖📖 ");
+    setState(() {
+      msg_sent = true;
+      temp_msg = "";
+      isreplying = false;
+      replyid = -1;
+    });
     if (msg != "") playClick();
-    await all_chats_list();
     user_contact();
     print("🚀🚀🚀🚀 msg sent");
   }
@@ -839,6 +844,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                                     color: Colors.black,
                                     iconSize: 23,
                                     onPressed: () {
+                                      HapticFeedback.heavyImpact();
                                       type_msg.text = "@Aurex ";
                                     },
                                   ),
