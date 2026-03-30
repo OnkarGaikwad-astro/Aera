@@ -6,7 +6,6 @@ class MessageTile extends StatefulWidget {
   final int realIndex;
   final Widget child;
   final Function onReply;
-  final Function onDelete;
 
   const MessageTile({
     super.key,
@@ -14,7 +13,6 @@ class MessageTile extends StatefulWidget {
     required this.realIndex,
     required this.child,
     required this.onReply,
-    required this.onDelete,
   });
 
   @override
@@ -37,20 +35,14 @@ class _MessageTileState extends State<MessageTile>
 
     controller.animation.addListener(() {
       final value = controller.animation.value;
-
-      // detect which pane is opening (ONLY ONCE)
       currentPane ??= controller.actionPaneType.value;
 
-      // trigger only once
       if (!triggered && value > 0.4 && currentPane != null) {
         triggered = true;
 
         if (currentPane == ActionPaneType.start) {
-          widget.onReply();   // 👉 right swipe
-        } else {
-          widget.onDelete();  // 👈 left swipe
+          widget.onReply();   
         }
-
         controller.close();
       }
     });
@@ -70,7 +62,6 @@ class _MessageTileState extends State<MessageTile>
       key: ValueKey(widget.message["id"]),
       groupTag: 'chatMessages',
 
-      // 👉 Right swipe → Reply
       startActionPane: const ActionPane(
         motion: StretchMotion(),
         children: [
@@ -84,22 +75,6 @@ class _MessageTileState extends State<MessageTile>
           ),
         ],
       ),
-
-      // 👉 Left swipe → Delete
-      endActionPane: const ActionPane(
-        motion: DrawerMotion(),
-        children: [
-          SlidableAction(
-            onPressed: null,
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            //  spacing: BorderSide.strokeAlignOutside,
-            backgroundColor: Colors.red,
-            icon: Icons.delete,
-            // label: 'Delete',
-          ),
-        ],
-      ),
-
       child: widget.child,
     );
   }

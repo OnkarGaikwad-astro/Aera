@@ -89,6 +89,7 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     } else {
       chat = Map<String, dynamic>.from(result);
     }
+    msg_sent = true;
     setState(() {});
   }
 
@@ -153,8 +154,8 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
     await box.put(widget.ID, all_msg_list.value["chats"][widget.ID]);
     setState(() {});
     await fetch_chat();
-    msg_sent = true;
-    setState(() {});
+    // msg_sent = true;
+    // setState(() {});
   }
 
   Future<void> username() async {
@@ -685,12 +686,6 @@ class _GroupChatState extends State<GroupChat> with WidgetsBindingObserver {
                             replyid = realIndex;
                             isreplying = true;
                             setState(() {});
-                          },
-
-                          onDelete: () async {
-                            print("Delete message $realIndex");
-                            HapticFeedback.heavyImpact();
-                            chatApi.deleteMsgforuser(widget.ID, chat["messages"][realIndex]["conversation_id"]);
                           },
                         );
                       },

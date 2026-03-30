@@ -113,6 +113,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     } else {
       chat = Map<String, dynamic>.from(result);
     }
+    msg_sent = true;
     setState(() {});
   }
 
@@ -163,8 +164,8 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     await box.put('all_msg_list', all_msg_list.value);
     setState(() {});
     await fetch_chat();
-    msg_sent = true;
-    setState(() {});
+    // msg_sent = true;
+    // setState(() {});
   }
 
   String buildChatId(String a, String b) {
@@ -422,12 +423,6 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                             replyid = realIndex;
                             isreplying = true;
                             setState(() {});
-                          },
-
-                          onDelete: () async {
-                            print("Delete message $realIndex");
-                            HapticFeedback.heavyImpact();
-                            chatApi.deleteMsgforuser(chatId, chat["messages"][realIndex]["conversation_id"]);
                           },
                         );
                       },
