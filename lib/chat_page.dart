@@ -256,11 +256,11 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
 
     Isdark = Hive.box("isdark").get("isDark");
     fetch_chat();
-    last_seen();
+    // last_seen();
     WidgetsBinding.instance.addObserver(this);
     all_chats_list();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      last_seen();
+      // last_seen();
       // await all_chats_list();
       setState(() {});
       print("🔔 message received");

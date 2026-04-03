@@ -75,11 +75,26 @@ class _MyHomePageState extends State<MyHomePage> {
   //////   chatlist widget  //////
   Widget chat_list(int num) {
     final user = FirebaseAuth.instance.currentUser!.email;
+
+    print(
+      all_msg_list.value["chats"][all_contacts
+          .value["contacts"][num]["chat_id"]],
+    );
+    print("\n\n");
     bool msgSeen = true;
-    final rawMsgSeen = all_msg_list
-        .value["chats"][all_contacts
-            .value["contacts"][num]["chat_id"]]["messages"]
-        .last["msg_seen"];
+    final rawMsgSeen =
+        (all_msg_list.value["chats"][all_contacts
+                .value["contacts"][num]["chat_id"]] !=
+            null)
+        ? (all_msg_list.value["chats"][all_contacts
+                      .value["contacts"][num]["chat_id"]]["message_count"] !=
+                  0
+              ? all_msg_list
+                    .value["chats"][all_contacts
+                        .value["contacts"][num]["chat_id"]]["messages"]
+                    .last["msg_seen"]
+              : true)
+        : true;
     if (rawMsgSeen is Map<String, dynamic>) {
       msgSeen = rawMsgSeen[user];
     } else if (rawMsgSeen is String) {
@@ -359,22 +374,29 @@ class _MyHomePageState extends State<MyHomePage> {
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                       all_msg_list.value["chats"][all_contacts
-                                                  .value["contacts"][num]["chat_id"]] !=
+                                                  .value["contacts"][num]["chat_id"]] ==
                                               null
-                                          ? (all_msg_list
-                                                    .value["chats"][all_contacts
-                                                        .value["contacts"][num]["chat_id"]]["messages"]
-                                                    .last["msg"]
-                                                    .contains(SECRET_MARKER)
-                                                ? " ◯ Image"
-                                                : all_msg_list
-                                                      .value["chats"][all_contacts
-                                                          .value["contacts"][num]["chat_id"]]["messages"]
-                                                      .last["msg"]
-                                                      .toString()
-                                                      .split("rpy")
-                                                      .last)
-                                          : "",
+                                          ? "Send first message"
+                                          : (all_msg_list
+                                                        .value["chats"][all_contacts
+                                                        .value["contacts"][num]["chat_id"]]["message_count"] !=
+                                                    0
+                                                ? (all_msg_list
+                                                          .value["chats"][all_contacts
+                                                              .value["contacts"][num]["chat_id"]]["messages"]
+                                                          .last["msg"]
+                                                          .contains(
+                                                            SECRET_MARKER,
+                                                          )
+                                                      ? " ◯ Image"
+                                                      : all_msg_list
+                                                            .value["chats"][all_contacts
+                                                                .value["contacts"][num]["chat_id"]]["messages"]
+                                                            .last["msg"]
+                                                            .toString()
+                                                            .split("rpy")
+                                                            .last)
+                                                : "Send first message"),
                                       style: GoogleFonts.exo2(
                                         fontSize: 13.5,
                                         color: const Color.fromARGB(
@@ -884,16 +906,20 @@ class _MyHomePageState extends State<MyHomePage> {
             borderRadius: BorderRadius.circular(17),
             onTap: () async {
               HapticFeedback.heavyImpact();
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) {
-              //       return ChatbotPage();
-              //     },
-              //   ),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return ChatbotPage();
+                  },
+                ),
+              );
               // final a = await chatApi.deleteMsgforuser("onkar.gaikwad@iitgn.ac.in__onkargaikwad3319@gmail.com", 1258);
-              print(all_msg_list.value);
+              // print(
+              //   all_msg_list
+              //       .value["chats"]["fnny8671@gmail.com__onkar.gaikwad@iitgn.ac.in"],
+              // );
+              // print(all_contacts.value["contacts"][6]);
             },
             child: CircleAvatar(
               maxRadius: 15,
