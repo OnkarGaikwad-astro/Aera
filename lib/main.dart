@@ -40,43 +40,50 @@ Future<void> setupNotificationChannel() async {
 }
 
 
+
+
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-    'channelId',
-    'channelName',
+
+  final FlutterLocalNotificationsPlugin flnBg =
+      FlutterLocalNotificationsPlugin();
+
+  const AndroidNotificationDetails androidDetails =
+      AndroidNotificationDetails(
+    'high_importance_channel',
+    'High Importance Notifications',
     importance: Importance.max,
     priority: Priority.high,
   );
-  const NotificationDetails notifDetails = NotificationDetails(
-    android: androidDetails,
-  );
-  await fln.show(
-    1,
+
+  final subtitle = message.data['subtitle'] ?? '';
+
+  await flnBg.show(
+    DateTime.now().millisecondsSinceEpoch ~/ 1000,
     message.notification?.title,
-    message.notification?.body,
-    notifDetails,
+    "$subtitle\n${message.notification?.body}",
+    const NotificationDetails(android: androidDetails),
   );
 }
 
-
-void handleNotificationNavigation(RemoteMessage message) async{
-  // print("FCM DATA: ${message.data}");
+final GlobalKey<NavigatorState> navigatorKey =
+    GlobalKey<NavigatorState>();
+    
+void handleNotificationNavigation(RemoteMessage message) {
   final type = message.data['type'];
-  appKey.currentState?.all_chats_list();
+
   if (type == 'chat') {
-    // print("FCM DATA: ${message.data}");
     navigatorKey.currentState?.push(
       MaterialPageRoute(
-        builder: (_) => ChatPage(ID:message.data["send_id"])
+        builder: (_) => ChatPage(ID: message.data["send_id"]),
       ),
     );
   }
 }
 
 
-final GlobalKey<NavigatorState> navigatorKey =
-    GlobalKey<NavigatorState>();
+
 
 
 //////  MAIN  //////
@@ -129,15 +136,29 @@ class _MyAppState extends State<MyApp> {
     chatApi.fetch_api();
     all_chats_list();
     chatApi.savefcm();
+    chatApi.subscribe_groups();
     chatApi.setOnline();
     isdark = Hive.box("isdark").get("isDark") ?? true;
     retrive_data();
     update_last_seen();
     FirebaseMessaging.instance.requestPermission();
-    FirebaseMessaging.instance.getToken().then((token) {});
+    // FirebaseMessaging.instance.getToken().then((token) {});
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // user_contacts();
+      final subtitle = message.data['subtitle'] ?? '';
       all_chats_list();
+      fln.show(
+     DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    message.notification?.title,
+    "$subtitle\n${message.notification?.body}",
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'high_importance_channel',
+        'High Importance Notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+    ),
+  );
       print("🔔 Foreground message received");
     });
   }

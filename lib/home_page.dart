@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   position: RelativeRect.fromLTRB(
                     left,
                     top,
-                    overlay.size.width - left - menuWidth,
+                    0,
                     overlay.size.height - top,
                   ),
 
@@ -914,11 +914,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               );
-              // print(
-              //   all_msg_list
-              //       .value["chats"]["fnny8671@gmail.com__onkar.gaikwad@iitgn.ac.in"],
-              // );
-              // print(all_contacts.value["contacts"][6]);
+              print(all_msg_list.value);
+              // chatApi.subscribe_groups();
             },
             child: CircleAvatar(
               maxRadius: 15,

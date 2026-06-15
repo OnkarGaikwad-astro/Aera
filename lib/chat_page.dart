@@ -105,6 +105,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
   Future<void> send_message(String msg, String type) async {
     final email = await FirebaseAuth.instance.currentUser?.email;
     await chatApi.addMessageFast(email!, widget.ID, msg, chatId, type);
+    HapticFeedback.heavyImpact();
     print("📖📖📖📖📖📖📖 ");
       msg_sent = true;
       temp_msg = "";
@@ -129,6 +130,16 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
     setState(() {});
     print("🚀last_seeen_fetched");
     // print(response);
+  }
+
+void onsend(String msg){
+  chat["message_count"] = chat["message_count"]+1;
+  List<Map<String, dynamic>> msgl = chat["messages"];
+  print(msgl);
+  msgl.add({"user_sent": "yes", "type": "temp","msg" : msg});
+  setState(() {
+  });
+  print(msgl);
   }
 
   ////////  chat_list  ///////
@@ -501,55 +512,48 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                           children: [
                             Padding(
                               padding: const EdgeInsets.all(4.0),
-                              child: Hero(
-                                tag:
-                                    contacts["contacts"][contacts["contacts"]
-                                        .indexWhere(
-                                          (e) => e['id'] == widget.ID,
-                                        )]["chat_id"],
-                                child: Container(
-                                  height: 40,
-                                  width: 40,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadiusGeometry.circular(
-                                      10,
-                                    ),
-                                    child: RepaintBoundary(
-                                      child: CachedNetworkImage(
-                                        imageUrl:
-                                            contacts["contacts"][contacts["contacts"]
-                                                .indexWhere(
-                                                  (e) => e['id'] == widget.ID,
-                                                )]["profile_pic"],
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            const Center(
-                                              child: SizedBox(
-                                                height: 20,
-                                                width: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                      padding: EdgeInsets.all(
-                                                        5,
-                                                      ),
-                                                      color: Colors.black,
-                                                      constraints:
-                                                          BoxConstraints(
-                                                            minWidth: 20,
-                                                            minHeight: 20,
-                                                          ),
-                                                    ),
-                                              ),
-                                            ),
-                                        errorWidget: (context, url, error) =>
-                                            const Icon(Icons.broken_image),
-                                        memCacheWidth: 400,
-                                        fadeInDuration: Duration.zero,
-                                        fadeOutDuration: Duration.zero,
-                                      ),
-                                    ),
-                                    // child: Image.network(contacts["contacts"][num]["profile_pic"]),
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    10,
                                   ),
+                                  child: RepaintBoundary(
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          contacts["contacts"][contacts["contacts"]
+                                              .indexWhere(
+                                                (e) => e['id'] == widget.ID,
+                                              )]["profile_pic"],
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                            child: SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child:
+                                                  CircularProgressIndicator(
+                                                    padding: EdgeInsets.all(
+                                                      5,
+                                                    ),
+                                                    color: Colors.black,
+                                                    constraints:
+                                                        BoxConstraints(
+                                                          minWidth: 20,
+                                                          minHeight: 20,
+                                                        ),
+                                                  ),
+                                            ),
+                                          ),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.broken_image),
+                                      memCacheWidth: 400,
+                                      fadeInDuration: Duration.zero,
+                                      fadeOutDuration: Duration.zero,
+                                    ),
+                                  ),
+                                  // child: Image.network(contacts["contacts"][num]["profile_pic"]),
                                 ),
                               ),
                             ),
@@ -685,7 +689,7 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                                             "reply")
                                         ? sendedreply(realIndex)
                                         : sent_image_base(realIndex)
-                                  : (chat["messages"][realIndex]["type"] ==
+                                  : (chat["messages"][realIndex]["type"] == "temp")?temp_sended_widget(chat["messages"][realIndex]["msg"]): (chat["messages"][realIndex]["type"] ==
                                         "message")
                                   ? sended_msg(realIndex)
                                   : sendedreply(realIndex));
@@ -835,12 +839,12 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                               onSubmitted: (value) async {
                                 HapticFeedback.selectionClick();
 
-                                msg_sent = false;
+                                msg_sent = true;
 
                                 setState(() {});
 
                                 final msg = type_msg.text;
-
+                                onsend(msg);
                                 type_msg.text = "";
 
                                 if (msg.contains("@Aurex")) {
@@ -958,9 +962,10 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
                           child: IconButton(
                             onPressed: () async {
                               HapticFeedback.selectionClick();
-                              msg_sent = false;
+                              msg_sent = true;
                               setState(() {});
                               final msg = type_msg.text;
+                              onsend(msg);
                               type_msg.text = "";
                               if (msg.contains("@Aurex")) {
                                 if (isreplying && replyid != -1) {
@@ -1015,6 +1020,42 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
       ),
     );
   }
+
+
+  Widget temp_sended_widget(String msg) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 10),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 270),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                topLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+                topRight: Radius.zero,
+              ),
+              color: Color(0xFF5BB9A8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 3,
+                top: 3,
+                left: 7,
+                right: 7,
+              ),
+              child: Text(
+                msg,
+                style: GoogleFonts.josefinSans(color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+      );
+  }
+
 
   //////  replying widget  //////
   Widget replyingwid() {
@@ -1452,16 +1493,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
             ),
             menuPadding: EdgeInsets.all(2),
             items: [
-              PopupMenuItem(
-                value: "delete",
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, color: Colors.red),
-                    SizedBox(width: 10),
-                    Text("Delete"),
-                  ],
-                ),
-              ),
               PopupMenuItem(
                 value: "delete for me",
                 child: Row(
@@ -2044,16 +2075,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           menuPadding: EdgeInsets.all(2),
           items: [
             PopupMenuItem(
-              value: "delete",
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 10),
-                  Text("Delete"),
-                ],
-              ),
-            ),
-            PopupMenuItem(
               value: "delete for me",
               child: Row(
                 children: [
@@ -2325,16 +2346,6 @@ class _ChatPageState extends State<ChatPage> with WidgetsBindingObserver {
           ),
           menuPadding: EdgeInsets.all(2),
           items: [
-            PopupMenuItem(
-              value: "delete",
-              child: Row(
-                children: [
-                  Icon(Icons.delete, color: Colors.red),
-                  SizedBox(width: 10),
-                  Text("Delete"),
-                ],
-              ),
-            ),
             PopupMenuItem(
               value: "delete for me",
               child: Row(

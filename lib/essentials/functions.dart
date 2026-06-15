@@ -76,7 +76,24 @@ class SupabaseChatApi {
           .update({"fcm_token": fcm})
           .eq('user_id', user.email!);
     }
+
     print("saved");
+  }
+
+  Future<void> subscribe_groups() async {
+    final user = await FirebaseAuth.instance.currentUser!.email ?? "";
+    final ids = await _db
+        .from("user_contacts")
+        .select("chat_id")
+        .or('members.cs.{${user}}');
+
+  for(final i in ids){
+    if(!i["chat_id"].toString().contains("@")){
+      print(i["chat_id"].toString());
+      FirebaseMessaging.instance.subscribeToTopic(i["chat_id"].toString());
+    }
+  }
+  print("subscribed");
   }
 
   ////  get user info  ////
@@ -95,22 +112,18 @@ class SupabaseChatApi {
     return {'count': rows.length, 'users': rows};
   }
 
+  Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
+    final from = page * limit;
+    final to = from + limit - 1;
 
-Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
-  final from = page * limit;
-  final to = from + limit - 1;
-
-  final rows = await _db
-      .from('users')
-      .select(
-        'id,user_id,name,bio,fcm_token,phone_no,profile_pic,last_seen,updated_at',
-      )
-      .range(from, to); 
-  return {
-    'count': rows.length,
-    'users': rows,
-  };
-}
+    final rows = await _db
+        .from('users')
+        .select(
+          'id,user_id,name,bio,fcm_token,phone_no,profile_pic,last_seen,updated_at',
+        )
+        .range(from, to);
+    return {'count': rows.length, 'users': rows};
+  }
   ////  all users info  ////
 
   Future<List> allUsersInfo() async {
@@ -160,7 +173,7 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
 
   /////  mark msg seen  ////
 
-  Future<void> markLastMsgSeen(String chatId,int no) async {
+  Future<void> markLastMsgSeen(String chatId, int no) async {
     print("🚀🚀🚀 start");
     print(chatId);
     final user = await FirebaseAuth.instance.currentUser!.email!;
@@ -179,23 +192,23 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     } else {
       members = Map<String, dynamic>.from(raw);
     }
-    if(members[user] == false){
-    members[user] = true;
-    await Supabase.instance.client
-        .from('user_contacts')
-        .update({"msg_seen": jsonEncode(members)})
-        .eq("chat_id", chatId);
+    if (members[user] == false) {
+      members[user] = true;
+      await Supabase.instance.client
+          .from('user_contacts')
+          .update({"msg_seen": jsonEncode(members)})
+          .eq("chat_id", chatId);
 
-    await Supabase.instance.client
-        .from('messages')
-        .update({"msg_seen": jsonEncode(members)})
-        .eq("chat_id", chatId);
+      await Supabase.instance.client
+          .from('messages')
+          .update({"msg_seen": jsonEncode(members)})
+          .eq("chat_id", chatId);
     }
 
     print("end");
   }
 
-  Future<void> markMsgSeen(String chatId,int convo_id,final raw) async {
+  Future<void> markMsgSeen(String chatId, int convo_id, final raw) async {
     print("🚀🚀🚀 start");
     print(chatId);
     final user = await FirebaseAuth.instance.currentUser!.email!;
@@ -206,31 +219,32 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
     } else {
       members = Map<String, dynamic>.from(raw);
     }
-    if(members[user] == false){
+    if (members[user] == false) {
       print(members);
-    members[user] = true;
-    await Supabase.instance.client
-        .from('messages')
-        .update({"msg_seen": jsonEncode(members)})
-        .or(
-          'and(chat_id.eq.$chatId,conversation_id.eq.$convo_id)',
-        );
+      members[user] = true;
+      await Supabase.instance.client
+          .from('messages')
+          .update({"msg_seen": jsonEncode(members)})
+          .or('and(chat_id.eq.$chatId,conversation_id.eq.$convo_id)');
     }
     print("end");
   }
 
   /////  user status /////
 
-  Future <Map<String, bool>> on_contacts()async{
+  Future<Map<String, bool>> on_contacts() async {
     final contacts = all_contacts.value["contacts"] as List ?? [];
     Map<String, bool> on_users = {};
     final ids = contacts
         .map((c) => c["id"])
         .where((id) => id != null && id.toString().isNotEmpty)
         .toList();
-    final users = await _db.from("user_presence").select("user_id,is_online").inFilter("user_id", ids);
+    final users = await _db
+        .from("user_presence")
+        .select("user_id,is_online")
+        .inFilter("user_id", ids);
 
-    for(final i in users){
+    for (final i in users) {
       on_users[i["user_id"]] = i["is_online"];
     }
     return on_users;
@@ -511,14 +525,15 @@ Future<Map<String, dynamic>> getUsers({int page = 0, int limit = 20}) async {
   //   return r.isEmpty ? null : r.first['chat_id'];
   // }
 
-
-
-//// get group members ////
-Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
-  final data = await _db.from("user_contacts").select("members,profile_pic,name").eq("chat_id", chatid);
-  print(data);
-  return data ;
-}
+  //// get group members ////
+  Future<List<Map<String, dynamic>>> getGroupMembers(String chatid) async {
+    final data = await _db
+        .from("user_contacts")
+        .select("members,profile_pic,name")
+        .eq("chat_id", chatid);
+    print(data);
+    return data;
+  }
 
   /////  add message   /////
   String buildChatId(String a, String b) {
@@ -586,9 +601,9 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'token': fcm,
-            'title': sender == "Aurex AI"
-                ? "Aurex AI"
-                : FirebaseAuth.instance.currentUser?.displayName,
+            'title': sender == FirebaseAuth.instance.currentUser?.displayName,
+            'subtitle':
+                '${sender == "Aurex AI" ? "Aurex AI" : FirebaseAuth.instance.currentUser?.displayName} sent a message',
             'body': msg.contains('\uE000') ? '⦿ Image' : msg,
             'send_id': sender,
           }),
@@ -625,6 +640,7 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
   Future<void> addMessagegrp(
     String sender,
     String chatId,
+    String grpname,
     String msg,
     String type,
     bool bot,
@@ -667,40 +683,36 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
           "msg_seen": seen_data,
         })
         .eq('chat_id', chatId);
-    // print("fetching fcm 😋 ");
-    // final fcmToken = await contact["fcm_token"];
-    // print("😋😋😋 fcm token :${fcmToken}");
-    // if (fcmToken != null && fcmToken.isNotEmpty) {
-    //   Future.microtask(() {
-    //     http.post(
-    //       Uri.parse(notificationServerUrl),
-    //       headers: {'Content-Type': 'application/json'},
-    //       body: jsonEncode({
-    //         'token': fcmToken,
-    //         'title': FirebaseAuth.instance.currentUser?.displayName,
-    //         'body': msg.contains('\uE000') ? '⦿ Image' : msg,
-    //         'send_id': sender,
-    //       }),
-    //     );
-    //   });
-    // }
+
+    Future.microtask(() {
+      http.post(
+        Uri.parse(notificationServerUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'topic': chatId,
+          'subtitle': '${name} sent a message',
+          'title': grpname,
+          'body': msg.contains('\uE000') ? '⦿ Image' : msg,
+          'send_id': chatId,
+        }),
+      );
+    });
   }
 
   ////  chat between user and contact  /////
 
-  Future<Map<String, dynamic>> getChat(
-    String chatId,
-  ) async {
-    String currentUser = FirebaseAuth.instance.currentUser!.email??"";
+  Future<Map<String, dynamic>> getChat(String chatId) async {
+    String currentUser = FirebaseAuth.instance.currentUser!.email ?? "";
     final rows = await _db
         .from('messages')
-        .select('msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen')
+        .select(
+          'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen',
+        )
         .eq("chat_id", chatId)
         .contains('members', [currentUser])
         .order('timestamp', ascending: true);
     final List<Map<String, dynamic>> messages = rows.map((m) {
       final sender = m['sender_id'] as String;
-    
 
       return {
         'msg': m['msg'],
@@ -715,7 +727,7 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
         "chat_id": m["chat_id"],
         'user_sent': sender == currentUser ? 'yes' : 'no',
         "type": m["type"],
-        "msg_seen" :m["msg_seen"]
+        "msg_seen": m["msg_seen"],
       };
     }).toList();
     return {
@@ -735,9 +747,10 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
         .select(
           'msg,timestamp,sender_id,receiver_id,conversation_id,chat_id,sender_name,sender_prof_pic,type,msg_seen',
         )
-        .or('members.cs.{${userId}}',
-        // .or(
-        //   'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
+        .or(
+          'members.cs.{${userId}}',
+          // .or(
+          //   'sender_id.eq.$userId,receiver_id.eq.$userId,members.cs.{${userId}}',
         )
         .order('timestamp', ascending: true);
     final Map<String, List<Map<String, dynamic>>> chatMap = {};
@@ -759,18 +772,19 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
         "chat_id": m["chat_id"],
         'user_sent': sender == userId ? 'yes' : 'no',
         "type": m["type"],
-        "msg_seen" :m["msg_seen"]
+        "msg_seen": m["msg_seen"],
       });
     }
-    final Map<String, dynamic> chats ={};
+    final Map<String, dynamic> chats = {};
 
     chatMap.forEach((chatid, messages) {
-      chats["$chatid"]={
+      chats["$chatid"] = {
         'chat_id': chatid,
         'message_count': messages.length,
         'messages': messages,
-      };});
-    
+      };
+    });
+
     return {'chats': chats};
   }
 
@@ -851,13 +865,20 @@ Future<List<Map<String, dynamic>>> getGroupMembers(String chatid)async{
   ///// delete for user only   ////
   Future<void> deleteMsgforuser(String chatId, int convoId) async {
     final List<dynamic> members = [];
-    String User = FirebaseAuth.instance.currentUser!.email??"";
-    final response = await _db.from("messages").select("members").eq("chat_id", chatId).eq("conversation_id", convoId);
-    for(final i in response[0]["members"]){
-      if(i!=User)
-      members.add(i);
+    String User = FirebaseAuth.instance.currentUser!.email ?? "";
+    final response = await _db
+        .from("messages")
+        .select("members")
+        .eq("chat_id", chatId)
+        .eq("conversation_id", convoId);
+    for (final i in response[0]["members"]) {
+      if (i != User) members.add(i);
     }
-    await _db.from("messages").update({"members":members}).eq("chat_id",chatId).eq("conversation_id",convoId);
+    await _db
+        .from("messages")
+        .update({"members": members})
+        .eq("chat_id", chatId)
+        .eq("conversation_id", convoId);
     print(members);
   }
 

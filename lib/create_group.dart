@@ -15,6 +15,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool isdark = true;
 
@@ -613,4 +614,7 @@ class _CreateGroupState extends State<CreateGroup> {
       ),
     );
   }
+Future<void>find_grp(String serc)async{
+  final grp = Supabase.instance.client.from("user_contacts").select("name,profile_pic,chat_id").eq("chat_id",serc);
+}
 }

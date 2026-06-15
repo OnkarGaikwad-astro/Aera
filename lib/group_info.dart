@@ -107,6 +107,11 @@ class _GroupInfoState extends State<GroupInfo> {
               ),
             ),
             SizedBox(height: 8),
+            Center(child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text("GroupId : ${widget.chatId}",style: GoogleFonts.josefinSans(fontSize: 18,),),
+            )),
+            SizedBox(height: 4,),
             Container(
               height: 50,
               child: Padding(

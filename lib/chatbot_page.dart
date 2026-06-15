@@ -70,6 +70,8 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     print("played");
   }
 
+
+
   Widget typing_indi() {
     if (otherUserTyping) {
       return Padding(
@@ -117,18 +119,32 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     setState(() {});
   }
 
+
+void onsend(String msg){
+  chat["message_count"] = chat["message_count"]+1;
+  List<Map<String, dynamic>> msgl = chat["messages"];
+  print(msgl);
+  msgl.add({"user_sent": "yes", "type": "temp","msg" : msg});
+  setState(() {
+  });
+  print(msgl);
+  }
+
+
   ///////   send message   ////
   Future<void> send_message(String msg, String type) async {
     if (msg == "") return;
-    final email = await FirebaseAuth.instance.currentUser?.email;
-    otherUserTyping = true;
-    await chatApi.addMsgforchatbot(email!, "chatbot", msg, type, your_name);
-    setState(() {
+    onsend(msg);
+      setState(() {
       msg_sent = true;
       temp_msg = "";
       isreplying = false;
       replyid = -1;
     });
+    final email = await FirebaseAuth.instance.currentUser?.email;
+    otherUserTyping = true;
+    await chatApi.addMsgforchatbot(email!, "chatbot", msg, type, your_name);
+    HapticFeedback.heavyImpact();
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
@@ -138,6 +154,13 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
 
   Future<void> send_reply_message(String msg, String type) async {
     if (msg == "") return;
+    onsend("${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}");
+     setState(() {
+      msg_sent = true;
+      temp_msg = "";
+      isreplying = false;
+      replyid = -1;
+    });
     otherUserTyping = true;
     final email = await FirebaseAuth.instance.currentUser?.email;
     await chatApi.addMsgforchatbot(
@@ -149,12 +172,6 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     );
     // await all_chats_list();
     // temp_msg = "";
-    setState(() {
-      msg_sent = true;
-      temp_msg = "";
-      isreplying = false;
-      replyid = -1;
-    });
     user_contact();
     playClick();
     print("🚀🚀🚀🚀 msg sent");
@@ -325,18 +342,23 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                         width: 150,
                         child: Column(
                           children: [
-                            Text(
-                              style: GoogleFonts.moiraiOne(
-                                fontSize: 25,
-                                letterSpacing: 5,
-                                fontWeight: FontWeight.w900,
-                                color: Isdark
-                                    ? const Color.fromARGB(210, 226, 255, 252)
-                                    : Colors.black,
+                            GestureDetector(
+                              onTap: () {
+                                onsend("");
+                              },
+                              child: Text(
+                                style: GoogleFonts.moiraiOne(
+                                  fontSize: 25,
+                                  letterSpacing: 5,
+                                  fontWeight: FontWeight.w900,
+                                  color: Isdark
+                                      ? const Color.fromARGB(210, 226, 255, 252)
+                                      : Colors.black,
+                                ),
+                                "Aurex !",
+                                softWrap: true,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              "Aurex !",
-                              softWrap: true,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -418,9 +440,9 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                             ? (message["type"] == "message")
                                   ? recieved_msg(realIndex)
                                   : receivedreply(realIndex)
-                            : (message["type"] == "message")
+                            : (message["type"] == "temp")?temp_sended_widget(chat["messages"][realIndex]["msg"]):((message["type"] == "message")
                             ? sended_msg(realIndex)
-                            : sendedreply(realIndex);
+                            : sendedreply(realIndex));
 
                         return MessageTile(
                           message: message,
@@ -456,7 +478,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                             bottom: 60,
                             left: 0,
                             right: 0,
-                            child: temp_sended_msg(),
+                            child: temp_sended_msg(""),
                           )
                         : SizedBox.shrink())
                   : SizedBox.shrink(),
@@ -494,9 +516,10 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                               },
                               onSubmitted: (value) async {
                                 HapticFeedback.selectionClick();
-                                msg_sent = false;
+                                msg_sent = true;
                                 setState(() {});
                                 final msg = type_msg.text;
+                                // onsend(msg);
                                 type_msg.text = "";
                                 if (isreplying && replyid != -1) {
                                   await send_reply_message(msg, "reply");
@@ -577,11 +600,11 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
                           child: IconButton(
                             onPressed: () async {
                               HapticFeedback.selectionClick();
-                              msg_sent = false;
+                              msg_sent = true;
                               setState(() {});
                               final msg = type_msg.text;
                               type_msg.text = "";
-
+                              // onsend(msg);
                               if (msg != "") {
                                 if (isreplying && replyid != -1) {
                                   await send_reply_message(msg, "reply");
@@ -1380,7 +1403,7 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
   }
 
   //////   temp_sended_mgs  //////
-  Widget temp_sended_msg() {
+  Widget temp_sended_msg(String msg) {
     if (temp_msg != null) {
       return Padding(
         padding: const EdgeInsets.only(left: 12, right: 12, bottom: 10),
@@ -1416,6 +1439,136 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     } else {
       return SizedBox.shrink();
     }
+  }
+
+
+  Widget temp_sended_widget(String msg) {
+      return 
+      (!msg.contains("rpy"))?Padding(
+        padding: const EdgeInsets.only(left: 12, right: 12, bottom: 10),
+        child: Align(
+          alignment: Alignment.topRight,
+          child: Container(
+            constraints: BoxConstraints(maxWidth: 270),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromARGB(0, 255, 255, 255)),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                topLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15),
+                topRight: Radius.zero,
+              ),
+              color: Color(0xFF5BB9A8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 3,
+                top: 3,
+                left: 7,
+                right: 7,
+              ),
+              child: Text(
+                msg,
+                style: GoogleFonts.josefinSans(color: Colors.black),
+              ),
+            ),
+          ),
+        ),
+      ) : Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+            padding: const EdgeInsets.only(bottom: 12, right: 10),
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 270),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                // color: Color(0xFF5BB9A8),
+                color: Color.fromARGB(255, 130, 158, 190),
+              ),
+              child: IntrinsicWidth(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(255, 37, 250, 90),
+                        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15),topLeft: Radius.circular(15),bottomRight: Radius.circular(13))
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 3),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15),topLeft: Radius.circular(15),bottomRight: Radius.circular(15)),
+                            color: kDivider,
+                          ),
+                          constraints: BoxConstraints(maxHeight: 105),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      "You",
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.exo2(
+                                        // color: const Color.fromARGB(255, 2, 194, 174),
+                                        color: const Color.fromARGB(255, 162, 218, 251),
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                             
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    msg.split("rpy")[1].trim(),
+                                    softWrap: true,
+                                    style: GoogleFonts.josefinSans(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // SizedBox(height: 5),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0,vertical: 2),
+                        child: Align(
+                          alignment: Alignment.topLeft,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxHeight: 150),
+                            child: SingleChildScrollView(
+                              child: Text(
+                                msg.split("rpy")[2].trim(),
+                                style: GoogleFonts.josefinSans(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                  ],
+                ),
+              ),
+            ),
+          ),
+      ); 
   }
 
   ////////   clear_chat ///////
@@ -1539,4 +1692,6 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
     user_contact();
     print("🚀🚀🚀🚀 response sent");
   }
+
+
 }
