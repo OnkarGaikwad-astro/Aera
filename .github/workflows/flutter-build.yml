@@ -1,44 +1,46 @@
 name: Flutter Release Build
 
 on:
-  push:
-    branches: [ main ]
+ push:
+  branches:
+   -main
 
 permissions:
-  contents: write
+ contents: write
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+ build:
+  runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+  steps:
+  - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
+  - uses: actions/setup-java@v4
+    with:
+      distribution: temurin
+      java-version: 17
 
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: 3.41.4
+  - uses: subosito/flutter-action@v2
+    with:
+      flutter-version: 3.41.4
 
-      - run: flutter pub get
+  - run: flutter pub get
 
-      - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
+  - name: Decode Keystore
+    run: |
+      echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release-keystore.jks
 
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=release-keystore.jks" >> android/key.properties
+  - name: Create key.properties
+    run: |
+      echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+      echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+      echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+      echo "storeFile=release-keystore.jks" >> android/key.properties
 
-      - run: flutter build apk --split-per-abi
+  - run: flutter build apk --release
 
-      - uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ github.run_number }}
-          files: build/app/outputs/flutter-apk/*.apk
+  - uses: softprops/action-gh-release@v2
+    with:
+      tag_name: latest
+      files: build/app/outputs/flutter-apk/app-release.apk
+
