@@ -435,7 +435,6 @@ void onsend(String msg){
                         }
 
                         final message = chat["messages"][realIndex];
-
                         Widget messageWidget = message["user_sent"] == "no"
                             ? (message["type"] == "message")
                                   ? recieved_msg(realIndex)
