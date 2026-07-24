@@ -1,8 +1,8 @@
 import 'dart:convert';
-import 'package:Aera/chat_page.dart';
-import 'package:Aera/essentials/data.dart';
-import 'package:Aera/essentials/functions.dart';
-import 'package:Aera/login_page.dart';
+import 'package:aera/chat_page.dart';
+import 'package:aera/essentials/data.dart';
+import 'package:aera/essentials/functions.dart';
+import 'package:aera/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

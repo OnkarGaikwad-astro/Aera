@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:Aera/essentials/colours.dart';
-import 'package:Aera/essentials/data.dart';
-import 'package:Aera/home_page.dart';
-import 'package:Aera/main.dart';
+import 'package:aera/essentials/colours.dart';
+import 'package:aera/essentials/data.dart';
+import 'package:aera/home_page.dart';
+import 'package:aera/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';

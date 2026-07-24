@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:Aera/chat_page.dart';
-import 'package:Aera/create_group.dart';
-import 'package:Aera/essentials/colours.dart';
-import 'package:Aera/essentials/data.dart';
-import 'package:Aera/home_page.dart';
-import 'package:Aera/main.dart';
+import 'package:aera/chat_page.dart';
+import 'package:aera/create_group.dart';
+import 'package:aera/essentials/colours.dart';
+import 'package:aera/essentials/data.dart';
+import 'package:aera/home_page.dart';
+import 'package:aera/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

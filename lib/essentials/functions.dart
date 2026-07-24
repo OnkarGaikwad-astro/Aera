@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:Aera/essentials/data.dart';
-import 'package:Aera/main.dart';
+import 'package:aera/essentials/data.dart';
+import 'package:aera/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
