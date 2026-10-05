@@ -170,7 +170,7 @@ Aurex is integrated directly into the application and uses the **Gemini API** to
 Instead of treating AI as a completely separate application, I wanted it to feel like another part of Aera.
 
 <p align="center">
-  <img src="screenshots/ai-assistant.jpg" alt="Aurex AI Assistant" width="320"/>
+  <img src="assets/screenshots/ai-assistant.jpg" alt="Aurex AI Assistant" width="320"/>
 </p>
 
 ### AI request flow
