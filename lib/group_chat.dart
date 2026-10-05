@@ -114,6 +114,7 @@ Future<void>getgrpname()async{
       replyid = -1;
     });
     if (msg != "") playClick();
+    
     user_contact();
     print("🚀🚀🚀🚀 msg sent");
   }
