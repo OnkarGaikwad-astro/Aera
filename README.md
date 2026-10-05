@@ -55,11 +55,11 @@ I used different services for different parts of the application instead of tryi
 ## 📱 Aera at a Glance
 
 <p align="center">
-  <img src="screenshots/home.jpg" alt="Aera Home Screen" width="280"/>
+  <img src="assets/screenshots/home.jpg" alt="Aera Home Screen" width="280"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="screenshots/chat.jpg" alt="Aera Chat Screen" width="280"/>
+  <img src="assets/screenshots/chat.jpg" alt="Aera Chat Screen" width="280"/>
   &nbsp;&nbsp;&nbsp;
-  <img src="screenshots/ai-assistant.jpg" alt="Aurex AI Assistant" width="280"/>
+  <img src="assets/screenshots/ai-assistant.jpg" alt="Aurex AI Assistant" width="280"/>
 </p>
 
 The application currently includes:
