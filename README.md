@@ -1,7 +1,7 @@
 # Aera Messenger 🚀
 
 <p align="center">
-  <img src="assets/icons/galexi_shape.png" alt="Aera Messenger" width="120"/>
+  <img src="assets/icons/aera_icon.png" alt="Aera Messenger" width="120"/>
 </p>
 
 <h1 align="center">Aera Messenger</h1>

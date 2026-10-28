@@ -66,9 +66,9 @@ dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icons/galexi_shape.png"
-  adaptive_icon_background: "#EAF2FF"   
-  adaptive_icon_foreground: "assets/icons/galexi_shape.png"
+  image_path: "assets/icons/aera_icon.png"
+  adaptive_icon_background: "#142952"   
+  adaptive_icon_foreground: "assets/icons/aera_icon.png"
 
 dev_dependencies:
   flutter_test:

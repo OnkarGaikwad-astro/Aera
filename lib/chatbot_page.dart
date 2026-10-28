@@ -123,9 +123,9 @@ class _ChatbotPageState extends State<ChatbotPage> with WidgetsBindingObserver {
 void onsend(String msg){
   chat["message_count"] = chat["message_count"]+1;
   List<Map<String, dynamic>> msgl = chat["messages"];
-  print(msgl);
   msgl.add({"user_sent": "yes", "type": "temp","msg" : msg});
   setState(() {
+    chat["messages"] = msgl;
   });
   print(msgl);
   }
@@ -134,7 +134,7 @@ void onsend(String msg){
   ///////   send message   ////
   Future<void> send_message(String msg, String type) async {
     if (msg == "") return;
-    onsend(msg);
+    // onsend(msg);
       setState(() {
       msg_sent = true;
       temp_msg = "";
@@ -154,7 +154,7 @@ void onsend(String msg){
 
   Future<void> send_reply_message(String msg, String type) async {
     if (msg == "") return;
-    onsend("${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}");
+    // onsend("${chat["messages"][replyid]["sender_name"]} rpy ${chat["messages"][replyid]["msg"].toString().split("rpy").last} rpy ${msg}");
      setState(() {
       msg_sent = true;
       temp_msg = "";
@@ -344,7 +344,7 @@ void onsend(String msg){
                           children: [
                             GestureDetector(
                               onTap: () {
-                                onsend("");
+                                // onsend("");
                               },
                               child: Text(
                                 style: GoogleFonts.moiraiOne(
