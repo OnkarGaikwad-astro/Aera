@@ -559,8 +559,8 @@ void onsend(String msg){
                             ),
                             isOnline
                                 ? Positioned(
-                                    right: -1,
-                                    top: -1,
+                                    right: 16,
+                                    top: -2,
                                     child: Icon(
                                       shadows: [
                                         Shadow(
@@ -569,13 +569,8 @@ void onsend(String msg){
                                         ),
                                       ],
                                       size: 17,
-                                      Icons.circle,
-                                      color: const Color.fromARGB(
-                                        255,
-                                        0,
-                                        255,
-                                        106,
-                                      ),
+                                      Icons.android_outlined,
+                                      color: Color(0xFFAEEED3),
                                       fontWeight: FontWeight.bold,
                                     ),
                                   )

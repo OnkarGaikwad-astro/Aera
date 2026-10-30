@@ -595,20 +595,24 @@ class SupabaseChatApi {
     final fcm = await getUserToken(receiver);
     print("😋😋😋 fcm token :${fcm}");
     if (fcm != null && fcm.isNotEmpty) {
-      Future.microtask(() {
+      // Future.microtask(() {
         http.post(
-          Uri.parse(notificationServerUrl),
+          Uri.parse("https://aera-notification.vercel.app/send"),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'token': fcm,
-            'title': sender == FirebaseAuth.instance.currentUser?.displayName,
+            'title':FirebaseAuth.instance.currentUser?.displayName ,
             'subtitle':
                 '${sender == "Aurex AI" ? "Aurex AI" : FirebaseAuth.instance.currentUser?.displayName} sent a message',
             'body': msg.contains('\uE000') ? '⦿ Image' : msg,
             'send_id': sender,
           }),
         );
-      });
+        print(sender);
+        print(receiver);
+        print(msg);
+        print(" 😁😁 ");
+      // });
     }
   }
 

@@ -16,7 +16,7 @@ import 'firebase_options.dart';
 import 'home_page.dart';
 
 final chatApi = SupabaseChatApi(
-                notificationServerUrl: "https://us-central1-galexi-eebbe.cloudfunctions.net/sendFcmNotification",
+                notificationServerUrl: "https://aera-notification.vercel.app/send",
               );
 
 bool isdark = true;
@@ -103,14 +103,14 @@ Future<void> main() async {
   await setupNotificationChannel();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.instance.getInitialMessage().then((message) {
-    if (message != null) {
-      handleNotificationNavigation(message);
-    }
+    // if (message != null) {
+    //   handleNotificationNavigation(message);
+    // }
   });
 
-  FirebaseMessaging.onMessageOpenedApp.listen((message) {
-    handleNotificationNavigation(message);
-  });
+  // FirebaseMessaging.onMessageOpenedApp.listen((message) {
+  //   handleNotificationNavigation(message);
+  // });
   runApp(MyApp());
 }
 

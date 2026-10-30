@@ -434,15 +434,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   isOnline && all_contacts.value["contacts"][num]["id"] != user
                       ? Positioned(
-                          left: 0,
-                          top: 0,
+                          left: 15,
+                          top: -2,
                           child: Icon(
                             shadows: [
                               Shadow(blurRadius: 10, color: Colors.teal),
                             ],
                             size: 20,
-                            Icons.circle_sharp,
-                            color: const Color.fromARGB(255, 0, 255, 106),
+                            Icons.android_rounded,
+                            // color: Color(0xFFFFF8B0),
+                            color: Color(0xFFAEEED3),
+                            // color:Color(0xFF55A9A0),
                             fontWeight: FontWeight.bold,
                           ),
                         )
@@ -914,7 +916,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   },
                 ),
               );
-              print(all_msg_list.value);
+              // print(await chatApi.getUserToken("onkargaikwad3319@gmail.com"));
+              // print(all_msg_list.value);
               // chatApi.subscribe_groups();
             },
             child: CircleAvatar(
